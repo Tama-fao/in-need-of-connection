@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Start</title>
+    <link rel="stylesheet" href="start-3.css">
+</head>
+<body>
+    <img id="logo" src="/elements-2D/logo.png" alt="Logo">
+
+    <!-- Intro text: appears line by line, vanishes when the shrimp is grabbed -->
+    <div id="intro">
+        <h1>Ah the common shrimp in it's natural habitat near the coast.</h1>
+        <h1>...</h1>
+        <h1>I said shrimp not hermit crab, That is not the right crustation! </br>
+            And where is your swarm? Now get out of there!</h1>
+    </div>
+
+    <!-- Shown above the shrimp only while it is grabbed -->
+    <h2 id="grab-text">Nooo!</h2>
+
+    <!-- Shell top right, tail sits behind it and peeks out at the bottom left -->
+    <div id="shell-area">
+        <img id="tail" src="/elements-2D/shrimp-tail-1.png" alt="Shrimp tail" draggable="false">
+        <img id="shell" src="/elements-2D/shell.png" alt="Shell" draggable="false">
+    </div>
+
+    <a id="menu-link" href="index.html">
+        <img id="menu" src="/elements-2D/menu-icon.png" alt="Menu">
+    </a>
+
+    <!-- Fishing line: runs from the hook to the bottom left, off screen -->
+    <svg id="line-layer" aria-hidden="true">
+        <line id="line" x1="0" y1="0" x2="0" y2="0"></line>
+    </svg>
+
+    <!-- Replaces the mouse pointer -->
+    <img id="hook" src="/elements-2D/hook.png" alt="" draggable="false">
+
+    <script>
+        const tail = document.getElementById('tail');
+        const hook = document.getElementById('hook');
+
+        /* ---------- Hook replaces the cursor ---------- */
+        const line = document.getElementById('line');
+
+        // Where the line is tied to the hook, relative to the pointer position
+        // (hook image's top-left corner). Adjust to match your hook.png.
+        const LINE_ATTACH_X = 10;  // px right of the pointer (about half the hook width)
+        const LINE_ATTACH_Y = 55;   // px below the pointer
+        const OVERSHOOT = 300;     // px the line extends past the screen corner
+
+        function updateLine(x, y) {
+            const x1 = x + LINE_ATTACH_X;
+            const y1 = y + LINE_ATTACH_Y;
+            const cornerX = 0;
+            const cornerY = window.innerHeight;
+
+            // Extend the line beyond the bottom-left corner so it runs off screen
+            const dx = cornerX - x1;
+            const dy = cornerY - y1;
+            const len = Math.hypot(dx, dy) || 1;
+            const x2 = cornerX + (dx / len) * OVERSHOOT;
+            const y2 = cornerY + (dy / len) * OVERSHOOT;
+
+            line.setAttribute('x1', x1);
+            line.setAttribute('y1', y1);
+            line.setAttribute('x2', x2);
+            line.setAttribute('y2', y2);
+        }
+
+        let lastX = 0, lastY = 0;
+
+        window.addEventListener('pointermove', (e) => {
+            lastX = e.clientX;
+            lastY = e.clientY;
+            hook.style.transform = `translate(${lastX}px, ${lastY}px)`;
+            hook.style.opacity = 1;
+            line.style.opacity = 1;
+            updateLine(lastX, lastY);
+        });
+
+        // Keep the line anchored to the corner if the window is resized
+        window.addEventListener('resize', () => updateLine(lastX, lastY));
+
+        document.addEventListener('pointerleave', () => {
+            hook.style.opacity = 0;
+            line.style.opacity = 0;
+        });
+
+        /* ---------- Intro text, one line after the other ---------- */
+        const intro = document.getElementById('intro');
+        const grabText = document.getElementById('grab-text');
+        const LINE_DELAY = 1400;   // ms between each line
+        const START_DELAY = 600;   // ms before the first line
+
+        const introTimers = [...intro.querySelectorAll('h1')].map((h, i) =>
+            setTimeout(() => h.classList.add('visible'), START_DELAY + i * LINE_DELAY)
+        );
+
+        // Keep the h2 centred just above the shrimp
+        function positionGrabText() {
+            const r = tail.getBoundingClientRect();
+            grabText.style.transform =
+                `translate(${r.left + r.width / 2}px, ${r.top - 10}px) translate(-50%, -100%)`;
+        }
+        tail.addEventListener('load', () => { if (dragging) positionGrabText(); });
+
+        /* ---------- Draggable tail ---------- */
+        let dragging = false;
+        let startX = 0, startY = 0;   // pointer position when drag began
+        let posX = 0, posY = 0;       // current offset of the tail
+
+        tail.addEventListener('pointerdown', (e) => {
+            dragging = true;
+            startX = e.clientX - posX;
+            startY = e.clientY - posY;
+            tail.setPointerCapture(e.pointerId);
+
+            tail.src = '/elements-2D/shrimp-start.png';  // swap image on click
+            tail.classList.add('dragging');              // bring in front of the shell
+
+            introTimers.forEach(clearTimeout);           // stop any lines still waiting
+            intro.classList.add('hidden');               // h1 text disappears
+            positionGrabText();
+            grabText.classList.add('show');              // h2 text appears
+        });
+
+        tail.addEventListener('pointermove', (e) => {
+            if (!dragging) return;
+            posX = e.clientX - startX;
+            posY = e.clientY - startY;
+            tail.style.transform = `translate(${posX}px, ${posY}px)`;
+            positionGrabText();
+        });
+
+        const stopDrag = (e) => {
+            dragging = false;
+            grabText.classList.remove('show');           // h2 only while grabbed
+            if (tail.hasPointerCapture(e.pointerId)) tail.releasePointerCapture(e.pointerId);
+        };
+        tail.addEventListener('pointerup', stopDrag);
+        tail.addEventListener('pointercancel', stopDrag);
+    </script>
+</body>
+</html>
