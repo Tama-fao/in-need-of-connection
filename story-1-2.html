@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Story 1</title>
+    <link rel="stylesheet" href="story-1-2.css">
+</head>
+<body>
+
+  <div class="container">
+
+    <!-- Intro and outro share the same spot above the message -->
+    <div class="text-area">
+      <div id="intro" class="story-text">
+        <h1>While the shrimp is an individualistic creature the swarm gives the shrimp strength in numbers and a healthy social life</h1>
+      </div>
+
+      <div id="outro" class="story-text">
+        <h1>Truly a fickle creature</h1>
+      </div>
+    </div>
+
+    <div class="message" id="message"></div>
+
+    <div class="shrimps">
+      <div class="shrimp"><img src="/elements-2D/Story1-crowd.gif" alt=""></div>
+      <div class="shrimp"><img src="/elements-2D/story1-side-shrimp-left.gif" alt=""></div>
+      <div class="shrimp"><img src="/elements-2D/story1-shrimp.gif" alt=""></div>
+      <div class="shrimp"><img src="/elements-2D/story1-side-shrimp-right.gif" alt=""></div>
+      <div class="shrimp"><img src="/elements-2D/Story1-crowd.gif" alt=""></div>
+    </div>
+  </div>
+
+  <a id="menu-link" href="index.html">
+    <img id="menu" src="/elements-2D/menu-icon.png" alt="Menu">
+  </a>
+
+  <div id="hint">
+    <!-- Pop-up with the hint text, appears above the hint image when clicked -->
+    <div id="hint-popup" role="tooltip">
+      Try changing the size of the room and see what happens!
+    </div>
+    <img id="hint-img" src="/elements-2D/hint.png" alt="hint">
+  </div>
+
+
+<script>
+  const intro   = document.getElementById('intro');
+  const outro   = document.getElementById('outro');
+  const message = document.getElementById('message');
+
+  const MESSAGES = {
+    tight:  'I have no space! I feel suffocated',
+    medium: 'Mmmh.. This is actually quite alright',
+    wide:   'I have to much space! I feel lonely'
+  };
+
+  const OUTRO_DELAY = 3000; // ms after the "alright" message appears
+
+  // Phone / tablet = touch device
+  const isTouch = window.matchMedia('(pointer: coarse)').matches;
+
+  function getState() {
+    const w = window.innerWidth;
+    const landscape = window.innerWidth > window.innerHeight;
+
+    // Phones: portrait -> "no space", landscape -> "quite alright"
+    if (isTouch && w <= 1200) {
+      return landscape ? 'medium' : 'tight';
+    }
+
+    // Desktop: by window width
+    if (w < 800)   return 'tight';
+    if (w <= 1200) return 'medium';
+    return 'wide';
+  }
+
+  let currentState = null;
+  let outroTimer = null;
+  let introGone = false;
+  let lastWidth = window.innerWidth;
+  let lastHeight = window.innerHeight;
+
+  function applyState() {
+    const state = getState();
+    if (state === currentState) return;
+    currentState = state;
+
+    message.textContent = MESSAGES[state];
+
+    // Outro only belongs to the "alright" state
+    clearTimeout(outroTimer);
+    outro.classList.remove('visible');
+
+    if (state === 'medium') {
+      outroTimer = setTimeout(() => {
+        intro.classList.remove('visible');   // make room for the outro
+        outro.classList.add('visible');
+      }, OUTRO_DELAY);
+    }
+  }
+
+  /* ---------- Initial setup ---------- */
+  applyState();
+  // fade the intro in shortly after load
+  setTimeout(() => { if (!introGone) intro.classList.add('visible'); }, 100);
+
+  /* ---------- Resize / rotate ---------- */
+  window.addEventListener('resize', () => {
+    const w = window.innerWidth;
+    const h = window.innerHeight;
+
+    // Ignore tiny height-only changes (mobile address bar showing/hiding)
+    const widthChanged  = w !== lastWidth;
+    const heightChanged = Math.abs(h - lastHeight) > 150;
+
+    if (widthChanged || heightChanged) {
+      intro.classList.remove('visible');   // intro disappears for good
+      introGone = true;
+    }
+    lastWidth = w;
+    lastHeight = h;
+
+    applyState();
+  });
+
+  /* ---------- Hint pop-up ---------- */
+  const hintImg = document.getElementById('hint-img');
+  const hintPopup = document.getElementById('hint-popup');
+
+  hintImg.addEventListener('click', (e) => {
+    e.stopPropagation();
+    hintPopup.classList.toggle('show');
+  });
+
+  // Clicking anywhere else closes the pop-up
+  document.addEventListener('click', () => hintPopup.classList.remove('show'));
+</script>
+
+</body>
+</html>

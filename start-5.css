@@ -1,0 +1,252 @@
+body{
+    background: url('/elements-2D/background-1.png') no-repeat center center fixed;
+    }
+
+/* Adjust these to match your artwork */
+:root {
+    --logo-w: clamp(90px, 14vw, 220px);
+    --shell-w: clamp(140px, 22vw, 360px);
+    --tail-w: clamp(100px, 18vw, 250px);
+    --menu-w: clamp(48px, 6vw, 90px);
+    --hook-w: 60px;
+    --edge: clamp(12px, 2vw, 32px);
+}
+
+html, body {
+    height: 100%;
+    margin: 0;
+    overflow: hidden;
+}
+
+/* Hide the normal mouse pointer everywhere (the hook image replaces it) */
+html, body, a, img {
+    cursor: none;
+}
+
+h1 {
+    font-family: 'Futura', sans-serif;
+    font-size: 1.5rem;
+    color: #000;
+    text-align: left;
+    font-weight: 500;
+    
+}
+
+@media screen and (max-width: 768px) {
+    h1 {
+        font-size: 0.8rem;
+    }
+    
+}
+
+h2 {
+    font-family: 'Noteworthy', cursive;
+    font-size: 1.5rem;
+    color: #000;
+    text-align: left;
+    
+}
+
+/* Intro text: left side, lines appear one after the other */
+#intro {
+    position: fixed;
+    left: var(--edge);
+    top: 50%;
+    transform: translateY(-50%);
+    max-width: 40vw;
+    pointer-events: none;
+    transition: opacity 0.8s ease;
+}
+
+#intro h1 {
+    margin: 0 0 0.6em;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: opacity 0.8s ease, transform 0.8s ease;
+}
+
+#intro h1.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Fades everything out when the shrimp is grabbed */
+#intro.hidden {
+    opacity: 0;
+}
+
+/* Text above the shrimp while it is grabbed */
+#grab-text {
+    position: fixed;
+    left: 0;
+    top: 0;
+    margin: 0;
+    text-align: center;
+    white-space: nowrap;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.25s ease;
+    z-index: 9997;           /* below the line and hook */
+    
+     
+      
+}
+
+
+
+
+#grab-text.show {
+    opacity: 1;
+    animation: shake 0.35s ease-in-out infinite;
+}
+
+@keyframes shake {
+    0%   { translate: 0 0;      rotate: 0deg; }
+    30%  { translate: 10px -5px; rotate: 1deg; }
+    50%  { translate: 5px -5px; rotate: 0deg; }
+    70%  { translate: 5px -10px; rotate: 1deg; }
+    100% { translate: 0 0;      rotate: 0deg; }
+}
+
+/* Logo: top left */
+#logo {
+    position: fixed;
+    top: var(--edge);
+    left: var(--edge);
+    width: var(--logo-w);
+    height: auto;
+}
+
+#hint {
+    position: fixed;
+    bottom: var(--edge);
+    left: var(--edge);
+   
+    height: auto;
+}
+
+#hint-img {
+    display: block;
+    width: var(--menu-w);
+    height: auto;
+}
+
+/* Pop-up above the hint image */
+#hint-popup {
+    position: absolute;
+    left: 0;
+    bottom: calc(100% + 10px);
+    width: max-content;
+    max-width: min(260px, 70vw);
+    padding: 10px 14px;
+    background: #fff;
+    color: #000;
+    border: 2px solid #000;
+    border-radius: 12px;
+    font-family: 'Noteworthy', cursive;
+    font-size: 1.1rem;
+    pointer-events: none;
+    opacity: 0;
+    transform: translateY(6px);
+    transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+#hint-popup.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Little arrow pointing down at the hint image */
+#hint-popup::after {
+    content: '';
+    position: absolute;
+    left: 18px;
+    top: 100%;
+    border: 8px solid transparent;
+    border-top-color: #000;
+}
+
+/* Shell + tail: top right */
+#shell-area {
+    position: fixed;
+    top: var(--edge);
+    right: var(--edge);
+    width: var(--shell-w);
+}
+
+#shell {
+    position: relative;
+    z-index: 2;              /* in front of the tail */
+    display: block;
+    width: 100%;
+    height: auto;
+    pointer-events: none;    /* clicks fall through to the visible tail */
+}
+
+/* Tail: sits behind the shell, peeking out at its bottom left */
+#tail {
+    position: absolute;
+    z-index: 1;
+    width: var(--tail-w);
+    height: auto;
+    left: 5%;              /* tweak these two to change how much peeks out */
+    top: 33%;
+    touch-action: none;      /* lets touch screens drag instead of scroll */
+    user-select: none;
+    -webkit-user-drag: none;
+}
+
+/* While dragging, the tail comes to the front */
+#tail.dragging {
+    z-index: 3;
+}
+
+/* Menu: bottom right */
+#menu-link {
+    position: fixed;
+    right: var(--edge);
+    bottom: var(--edge);
+    display: block;
+}
+
+#menu {
+    display: block;
+    width: var(--menu-w);
+    height: auto;
+}
+
+/* Fishing line: full-screen layer so it can run off the edge */
+#line-layer {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;    /* never blocks clicks */
+    z-index: 9998;           /* just below the hook */
+    overflow: visible;
+}
+
+#line {
+    stroke: #333;            /* line colour */
+    stroke-width: 5;
+    stroke-linecap: round;
+    opacity: 0;              /* shown on first mouse move */
+}
+
+/* Hook: follows the pointer in place of the cursor */
+#hook {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: var(--hook-w);
+    height: auto;
+    pointer-events: none;    /* never blocks clicks */
+    z-index: 9999;
+    opacity: 0;              /* shown on first mouse move */
+    will-change: transform;
+}
+
+/* Touch devices have no pointer, so hide the hook there */
+@media (hover: none) {
+    #hook, #line-layer { display: none; }
+}
