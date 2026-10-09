@@ -129,7 +129,7 @@ h2 {
    Must stay below the .shrimp img rule so it overrides it. */
 @media (max-height: 500px) {
     .shrimp img {
-        height: 80px;
+        height: 20vh;
     }
 }
 
