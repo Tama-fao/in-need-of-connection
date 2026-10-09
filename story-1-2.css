@@ -1,12 +1,13 @@
 body{
-    background: url('/elements-2D/background-1.png') no-repeat center center fixed;
+    background: url('/elements-2D/background.gif') no-repeat center center fixed;
     background-size: cover;
 }
 
 /* Adjust these to match your artwork */
 :root {
     --edge: clamp(12px, 2vw, 32px);
-    --menu-w: clamp(48px, 6vw, 90px);
+    --menu-w: clamp(48px, 3vw, 90px);
+    --hint-w: clamp(48px, 7vw, 90px);
 }
 
 html, body {
@@ -124,6 +125,14 @@ h2 {
     height: 300px;
 }
 
+/* Phones in landscape: smaller shrimps so the text stays readable.
+   Must stay below the .shrimp img rule so it overrides it. */
+@media (max-height: 500px) {
+    .shrimp img {
+        height: 120px;
+    }
+}
+
 /* Menu -------------------------- */
 #menu-link {
     position: fixed;
@@ -150,7 +159,7 @@ h2 {
 #hint-img {
     cursor: pointer;
     display: block;
-    width: var(--menu-w);
+    width: var(--hint-w);
     height: auto;
 }
 
