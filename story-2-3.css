@@ -1,0 +1,468 @@
+body {
+    background: url('/elements-2D/background.gif') no-repeat center center fixed;
+    background-size: cover;
+}
+
+:root {
+    --edge: clamp(12px, 2vw, 32px);
+    --menu-w: clamp(48px, 3vw, 90px);
+    --hint-w: clamp(48px, 7vw, 90px);
+}
+
+html, body {
+    height: 100%;
+    margin: 0;
+    overflow: hidden;
+}
+
+h1 {
+    font-family: 'Futura', sans-serif;
+    font-size: 2rem;
+    color: #000;
+    text-align: center;
+    font-weight: 500;
+    margin: 0;
+}
+
+@media screen and (max-width: 768px) {
+    h1 { font-size: 0.9rem; }
+}
+
+
+
+h2 { 
+    font-size: 1.5rem; 
+    text-align: left; 
+    font-family: 'Single Day', cursive;
+    color: #000;
+    margin: 0;
+}
+
+h3 { 
+    font-size: 1rem; 
+    text-align: left; 
+    line-height: 1.2rem;
+    font-weight: 400;
+    font-family: 'Rock Salt', cursive;
+    color: #000;
+    margin: 0; 
+}
+
+
+
+
+
+/* ---------- Stage layout (top: bubbles, middle: characters, bottom: plate) ---------- */
+
+#stage {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Bubbles stack in a column below the menu. When one disappears it collapses,
+   so the remaining one moves up and the next one joins below. */
+#bubbles {
+    position: relative;
+    flex: 0 0 30%;
+    display: flex;
+    flex-direction: column;
+    padding-top: clamp(100px, 14vh, 150px);
+    box-sizing: border-box;
+}
+
+/* Seagull speech bubbles */
+.gull-bubble {
+    max-width: min(72vw);
+    max-height: 320px;
+    margin-top: 12px;
+    padding: 18px 34px;
+    background: #ffffff50;
+    border: 3px solid #000000;
+    border-radius: 15px;
+    opacity: 0;
+    overflow: hidden;
+    pointer-events: none;
+    box-sizing: border-box;
+    transition: opacity 0.4s ease, max-height 0.6s ease, margin 0.6s ease,
+                padding 0.6s ease, border-width 0.6s ease;
+}
+
+.gull-bubble.left  { align-self: flex-start; margin-left: 6%; }
+.gull-bubble.right { align-self: flex-end;   margin-right: 6%; }
+
+.gull-bubble.show { opacity: 1; }
+
+/* Hidden = collapsed, takes no space */
+.gull-bubble:not(.show) {
+    max-height: 0;
+    margin-top: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    border-width: 0;
+}
+
+.gull-bubble .full  { display: block; }
+.gull-bubble .short { display: none; }
+
+/* Small "room": show the short version of the text */
+@media screen and (max-width: 768px), screen and (max-height: 520px) {
+    .gull-bubble .full  { display: none; }
+    .gull-bubble .short { display: block; }
+    .gull-bubble { padding: 14px 24px; max-width: 70vw; }
+}
+
+#scene {
+    position: relative;
+    flex: 1 1 auto;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    padding: 0 4vw;
+    box-sizing: border-box;
+}
+
+.gull {
+    height: min(45vh, 52vw);
+    width: auto;
+    display: block;
+}
+
+#shrimp-wrap {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+}
+
+/* Only the image matching the current pose (data-pose on #shrimp-wrap) is shown */
+#shrimp-wrap img {
+    height: min(30vh, 34vw);
+    width: auto;
+    display: none;
+}
+
+#shrimp-wrap[data-pose="base"]    #shrimp-close   { display: block; }
+#shrimp-wrap[data-pose="trytalk"] #shrimp-trytalk { display: block; }
+#shrimp-wrap[data-pose="shout"]   #shrimp-shout   { display: block; }
+#shrimp-wrap[data-pose="normal"]  #shrimp-normal  { display: block; }
+
+.shook-img, .smile-img { display: none; }
+.shook .gull-normal { display: none; }
+.shook .shook-img  { display: block; }
+
+/* After the conversation: seagulls smile */
+.smiling .gull-normal,
+.smiling .shook-img { display: none; }
+.smiling .smile-img { display: block; }
+
+/* Shrimp speech bubbles */
+.shrimp-bubble {
+    position: absolute;
+    left: 50%;
+    bottom: 100%;
+    transform: translate(-50%, 10px) scale(0.6);
+    transform-origin: bottom center;
+    background: #ffffff00;
+    border: 3px solid #00000050;
+    border-radius: 25px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+    box-sizing: border-box;
+    white-space: nowrap;
+    z-index: 5;
+}
+
+.shrimp-bubble.show {
+    opacity: 1;
+    transform: translate(-50%, 0) scale(1);
+}
+
+.shrimp-bubble h2 { text-align: center; }
+
+#small-talk { 
+    min-width: 60px; padding: 10px 18px; 
+}
+#small-talk h2 { 
+    color: #00000050;
+ }
+#mid-talk   {
+     min-width: 110px; padding: 14px 26px;
+ }
+#mid-talk h2 { 
+    font-size: 1.8rem;
+    color: #00000050;
+ }
+
+#big-talk {
+    padding: 4vh 6vw;
+    z-index: 6;
+    bottom: 85%;
+    border-width: 20px;
+    background: #ffffff50;
+    border: 3px solid #000000;
+}
+#big-talk h2 {
+    font-size: clamp(2rem, 7vw, 4.5rem);
+    font-weight: 700;
+    color: #000;
+}
+
+#after-talk {
+    z-index: 6;
+    bottom: 85%;
+    padding: 2vh 3vw;
+    background: #ffffff50;
+    border: 3px solid #000000;
+    white-space: normal;
+    width: max-content;
+    max-width: 60vw;
+}
+#after-talk h2 {
+    font-size: clamp(1.1rem, 2.6vw, 2rem);
+    color: #000;
+}
+
+/* Brown table under the shrimp and seagulls */
+#table {
+    flex: 0 0 15vh;
+    background: #7a4a24;
+    border-top: 3px solid #3b2412;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-sizing: border-box;
+}
+
+/* Plate + talk button sit on the table */
+#plate-wrap {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    max-height: 100%;
+}
+
+#plate {
+    max-width: 90vw;
+    max-height: 10vh;
+    width: auto;
+    height: auto;
+    display: block;
+}
+
+#talk-btn {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    font-family: 'Single Day', cursive;
+    font-size: 1.5rem;
+    padding: 6px 30px;
+    background: #fff;
+    color: #000;
+    border: 0px solid #000;
+    border-radius: 999px;
+    cursor: pointer;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    transition: transform 0.06s ease;
+}
+
+#talk-btn:active { transform: translate(-50%, -50%) scale(0.92); }
+#talk-btn:disabled { opacity: 0.5; cursor: default; }
+
+
+/* speech bubble line -----------------------------------------------------------*/
+
+.gull-wrap { position: relative; }
+
+/* the curved line */
+.gull-wrap::after {
+    content: '';
+    position: absolute;
+    top: 0%;                 /* adjust to sit next to the beak */
+    width: 22px;
+    height: 48px;
+    border: 3px solid transparent;
+    border-radius: 50%;
+   
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+}
+
+/* left seagull faces right: curve on its right side */
+#gull-left-wrap::after  { right: 4%; border-right-color: #000;   rotate: 45deg;}
+/* right seagull faces left: curve on its left side */
+#gull-right-wrap::after { left: 4%;  border-left-color: #000;  rotate: -45deg; }
+
+.gull-wrap.talking::after { opacity: 1; }
+
+/* Outro */
+/* No overlay: the text sits at the height of the seagull bubbles */
+#outro {
+    position: fixed;
+    top: clamp(100px, 14vh, 150px);
+    left: 0;
+    right: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 1.2s ease;
+    z-index: 20;
+}
+
+#talk-btn { z-index: 3; }
+
+#outro.show { opacity: 1; }
+
+/* Menu -------------------------- */
+
+#corner-icons {
+    position: fixed;
+    top: var(--edge);
+    left: var(--edge);
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 30px;
+    z-index: 30;
+}
+
+#menu-link { display: block; }
+
+#menu {
+    display: block;
+    width: var(--menu-w);
+    height: auto;
+}
+
+/* Hint ------------------------*/
+
+#hint {
+    position: relative;
+    height: auto;
+}
+
+#hint-img {
+    margin-top: -20px;
+    cursor: pointer;
+    display: block;
+    width: var(--hint-w);
+    height: auto;
+}
+
+#hint-popup {
+    position: absolute;
+    left: 0;
+    top: calc(100% + 10px);
+    width: max-content;
+    max-width: min(260px, 70vw);
+    padding: 10px 14px;
+    background: #fff;
+    color: #000;
+    border: 2px solid #000;
+    border-radius: 12px;
+    font-family: 'Single Day', cursive;
+    font-size: 1.1rem;
+    pointer-events: none;
+    opacity: 0;
+    transform: translateY(-6px);
+    transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+#hint-popup.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+#hint-popup::after {
+    content: '';
+    position: absolute;
+    left: 18px;
+    bottom: 100%;
+    border: 8px solid transparent;
+    border-bottom-color: #000;
+}
+
+/* ---------- Mobile ---------- */
+@media screen and (max-width: 768px) {
+
+    /* Seagull speech bubbles: smaller text, thinner border */
+    h3 {
+        font-size: 0.7rem;
+        line-height: 0.95rem;
+    }
+    .gull-bubble {
+        border-width: 1.5px;
+        border-radius: 10px;
+        padding: 8px 14px;
+        max-width: 62vw;
+    }
+
+    /* Shrimp speech bubbles */
+    .shrimp-bubble { border-width: 1.5px; border-radius: 16px; }
+    #big-talk,
+    #after-talk { border-width: 1.5px; }
+    #small-talk { padding: 6px 12px; min-width: 40px; }
+    #mid-talk   { padding: 8px 16px; min-width: 70px; }
+    h2 { font-size: 1rem; }
+    #mid-talk h2 { font-size: 1.1rem; }
+    #big-talk { padding: 2vh 4vw; }
+    #big-talk h2 { font-size: clamp(1.2rem, 6vw, 2rem); }
+    #after-talk { padding: 1.2vh 3vw; max-width: 70vw; }
+    #after-talk h2 { font-size: 0.85rem; }
+
+    /* Curved line towards the seagulls: smaller and thinner */
+    .gull-wrap::after {
+        width: 12px;
+        height: 28px;
+        border-width: 1.5px;
+    }
+
+    /* Characters: closer together, sized by width so all three fit on screen */
+    #scene {
+        justify-content: center;
+        align-items: flex-end;
+        gap: 2vw;
+        padding: 0 2vw;
+    }
+    .gull-wrap,
+    #shrimp-wrap { min-width: 0; flex: 0 0 auto; }
+    .gull {
+        width: 31vw;
+        height: auto;
+        max-height: 40vh;
+        object-fit: contain;
+    }
+    #shrimp-wrap img {
+        width: 26vw;
+        height: auto;
+        max-height: 28vh;
+        object-fit: contain;
+    }
+
+    /* Bigger plate so the Talk button fits comfortably */
+    #table { flex: 0 0 20vh; }
+    #plate {
+        height: 16vh;
+        max-height: none;
+        width: auto;
+        min-width: 60vw;
+        max-width: 92vw;
+        object-fit: contain;
+    }
+    #talk-btn {
+        font-size: 1.25rem;
+        padding: 6px 24px;
+    }
+}
