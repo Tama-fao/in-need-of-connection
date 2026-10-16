@@ -232,7 +232,8 @@ h3 {
 /* Brown table under the shrimp and seagulls */
 #table {
     flex: 0 0 15vh;
-    background: #7a4a24;
+    background: #000000;
+    background: linear-gradient(0deg,rgba(0, 0, 0, 1) 0%, rgba(64, 43, 29, 1) 13%, rgba(122, 74, 36, 1) 64%);
     border-top: 3px solid #3b2412;
     display: flex;
     justify-content: center;
@@ -265,7 +266,7 @@ h3 {
     font-family: 'Single Day', cursive;
     font-size: 1.5rem;
     padding: 6px 30px;
-    background: #fff;
+    background: #ffffff00;
     color: #000;
     border: 0px solid #000;
     border-radius: 999px;
@@ -412,9 +413,9 @@ h3 {
     /* Shrimp speech bubbles */
     .shrimp-bubble { border-width: 1.5px; border-radius: 16px; }
     #big-talk,
-    #after-talk { border-width: 1.5px; }
-    #small-talk { padding: 6px 12px; min-width: 40px; }
-    #mid-talk   { padding: 8px 16px; min-width: 70px; }
+    #after-talk { border-width: 1.5px; bottom: 200%; }
+    #small-talk { padding: 6px 12px; min-width: 40px; bottom: 150%; }
+    #mid-talk   { padding: 8px 16px; min-width: 70px; bottom: 150%; }
     h2 { font-size: 1rem; }
     #mid-talk h2 { font-size: 1.1rem; }
     #big-talk { padding: 2vh 4vw; }
@@ -439,7 +440,7 @@ h3 {
     .gull-wrap,
     #shrimp-wrap { min-width: 0; flex: 0 0 auto; }
     .gull {
-        width: 31vw;
+        width: 50vw;
         height: auto;
         max-height: 40vh;
         object-fit: contain;
@@ -464,5 +465,83 @@ h3 {
     #talk-btn {
         font-size: 1.25rem;
         padding: 6px 24px;
+    }
+
+    #outro {
+        position: fixed;
+        top: clamp(100px, 30vh, 300px);
+        left: 0;
+        right: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 1.2s ease;
+        z-index: 20;
+    }
+
+    /* Menu -------------------------- */
+
+    #corner-icons {
+    position: fixed;
+    top: var(--edge);
+    left: var(--edge);
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 30px;
+    z-index: 30;
+}
+
+   
+
+    #menu {
+    
+    width: 40px;
+ 
+}
+
+    /* Hint ------------------------*/
+
+   
+
+    #hint-img {
+    margin-top: 0px;
+    width: 60px;
+
+    }
+
+    #hint-popup {
+    position: absolute;
+    left: 0;
+    top: calc(100% + 10px);
+    width: max-content;
+    max-width: min(200px, 70vw);
+    padding: 10px 14px;
+    background: #fff;
+    color: #000;
+    border: 2px solid #000;
+    border-radius: 12px;
+    font-family: 'Single Day', cursive;
+    font-size: 1.1rem;
+    pointer-events: none;
+    opacity: 0;
+    transform: translateY(-6px);
+    transition: opacity 0.25s ease, transform 0.25s ease;
+    }
+
+    #hint-popup.show {
+    opacity: 1;
+    transform: translateY(0);
+    }
+
+    #hint-popup::after {
+    content: '';
+    position: absolute;
+    left: 18px;
+    bottom: 100%;
+    border: 8px solid transparent;
+    border-bottom-color: #000;
     }
 }
