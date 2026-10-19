@@ -1,0 +1,303 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Story 3</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Patrick+Hand&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --sky-top: #bfeaf5;
+    --sky-bottom: #7cc4dc;
+    --ink: #1d2a33;
+    --bubble: #ffffff;
+  }
+  html, body { margin: 0; height: 100%; overflow: hidden; background: var(--sky-bottom); }
+  body {
+    /*background: linear-gradient(180deg, var(--sky-top) 0%, var(--sky-bottom) 100%);*/
+    background: url('/elements-2D/backgrounds/seafloor-paint-3.png') no-repeat center bottom fixed;
+    font-family: "Patrick Hand", "Comic Sans MS", system-ui, sans-serif;
+    color: var(--ink);
+  }
+  canvas { position: fixed; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; }
+  canvas.hovering { cursor: pointer; }
+
+  /* Speech bubbles (hover text + click text) */
+  .bubble {
+    position: fixed; left: 0; top: 0;
+    padding: 8px 14px;
+    background: var(--bubble);
+    border: 2.5px solid var(--ink);
+    border-radius: 16px;
+    font-size: clamp(16px, 2.2vw, 24px);
+    line-height: 1.2;
+    white-space: nowrap;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity .18s ease;
+    will-change: transform, opacity;
+   /* box-shadow: 0 3px 0 rgba(29,42,51,.25);*/
+  }
+  .bubble.show { opacity: 1; }
+  .bubble::after {            /* tail */
+    content: ""; position: absolute; left: 50%; bottom: -11px;
+    width: 14px; height: 14px; background: var(--bubble);
+    border-right: 2.5px solid var(--ink); border-bottom: 2.5px solid var(--ink);
+    transform: translateX(-50%) rotate(45deg);
+  }
+  .bubble.hover { font-size: clamp(14px, 1.8vw, 20px); }
+  .bubble.say { font-size: clamp(18px, 2.6vw, 28px); }
+
+  #status {
+    position: fixed; inset: 0; display: grid; place-items: center;
+    font-size: 22px; transition: opacity .4s; pointer-events: none;
+  }
+  #status.done { opacity: 0; }
+
+    #thought {
+        position: fixed;
+        top: 15%;
+        right: 40%;
+        width: 100px;
+        height: 100px;
+        opacity: 0.8;
+        pointer-events: none;
+    }
+
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div id="hoverBubble" class="bubble hover"></div>
+<div id="sayBubble" class="bubble say"></div>
+<div id="status">Loading shrimp…</div>
+
+<img id="thought" src="/elements-2D/story-3/thought.png" alt="thought">
+
+
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+} }
+</script>
+
+<script type="module">
+import * as THREE from 'three';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+
+/* ------------------------------------------------------------------
+   CONFIG — add more passing shrimp here later.
+   `root`  = name of the shrimp's top-level node in the .glb
+   `hover` = text shown while the mouse is over it
+   `click` = text the main shrimp says when it is clicked
+------------------------------------------------------------------- */
+const GLB_SRC   = '/models/story-3-try.glb';
+const MAIN_ROOT = 'main-shrimp';
+const PASSERS = [
+  { root: 'friend-box',  hover: 'hey is that my friend', click: 'I found my friend' },
+  { root: 'passer1',       hover: 'just a random passerby', click: 'hey that is not my friend' },
+];
+const SAY_DURATION_MS = 2800;
+
+/* Static camera (never moves) */
+/* Straight-on: the camera looks along -Z with no tilt (look target has the same x and y as the camera) */
+const CAMERA = { pos: [0.3, -0.5, 11.5], look: [0.3, -0.9, 1], fov: 46, refAspect: 16 / 9 };
+
+/* ------------------------------------------------------------------ */
+const canvas = document.getElementById('c');
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(CAMERA.fov, 1, 0.1, 100);
+camera.position.set(...CAMERA.pos);
+camera.lookAt(...CAMERA.look);
+
+function resize() {
+  const w = innerWidth, h = innerHeight, aspect = w / h;
+  renderer.setSize(w, h, false);
+  camera.aspect = aspect;
+  // keep the same horizontal framing on narrow screens (camera itself stays put)
+  const base = THREE.MathUtils.degToRad(CAMERA.fov);
+  camera.fov = aspect >= CAMERA.refAspect
+    ? CAMERA.fov
+    : THREE.MathUtils.radToDeg(2 * Math.atan(Math.tan(base / 2) * CAMERA.refAspect / aspect));
+  camera.updateProjectionMatrix();
+}
+addEventListener('resize', resize);
+resize();
+
+/* ---------- load ---------- */
+const mixer_ = { mixer: null };
+const passers = [];        // { cfg, root, bubbleKey }
+let mainRoot = null;
+const clock = new THREE.Clock();
+
+new GLTFLoader().load(GLB_SRC, (gltf) => {
+  scene.add(gltf.scene);
+  gltf.scene.updateMatrixWorld(true);
+  styleScene(gltf.scene);
+
+  mainRoot = gltf.scene.getObjectByName(MAIN_ROOT);
+  for (const cfg of PASSERS) {
+    const root = gltf.scene.getObjectByName(cfg.root);
+    if (!root) { console.warn('Passer root not found:', cfg.root); continue; }
+    passers.push({ cfg, root });
+  }
+
+  // play every animation in the file, looping
+  const mixer = new THREE.AnimationMixer(gltf.scene);
+  for (const clip of gltf.animations) {
+    if (clip.duration <= 0) { mixer.clipAction(clip).play(); continue; }
+    mixer.clipAction(clip).setLoop(THREE.LoopRepeat, Infinity).play();
+  }
+  mixer_.mixer = mixer;
+
+  document.getElementById('status').classList.add('done');
+  renderer.setAnimationLoop(tick);
+}, undefined, (err) => {
+  console.error(err);
+  document.getElementById('status').textContent = 'Could not load the model.';
+});
+
+/* ---------- look: dark ink outlines (the file's line-art pass isn't exported in .glb) ---------- */
+const INK = new THREE.Color(0x1d2a33);
+const OUTLINE_WORLD = 0.028;               // outline width in world units
+const STRAY = ['Circle.014', 'Circle.015', 'light-right-eye.001', 'light-left-eye.001'];   // loose leftover meshes in the file
+
+function styleScene(root) {
+  for (const n of STRAY) { const o = root.getObjectByName(n); if (o) o.visible = false; }
+  root.traverse((o) => { if (/^light-/.test(o.name)) o.visible = false; });   // detached eye-highlight specks
+
+  // The file's materials are lit (PBR) but the scene has no lights, so they render black.
+  // Swap them for flat, unlit materials that keep each material's colour (e.g. the orange).
+  const flat = new Map();
+  const toFlat = (src) => {
+    if (!flat.has(src)) flat.set(src, new THREE.MeshBasicMaterial({ color: src.color, side: THREE.DoubleSide }));
+    return flat.get(src);
+  }
+  root.traverse((o) => {
+    if (!o.isMesh) return;
+    o.material = Array.isArray(o.material) ? o.material.map(toFlat) : toFlat(o.material);
+  });
+
+  const meshes = [];
+  root.traverse((o) => { if (o.isMesh && o.visible) meshes.push(o); });
+  const ws = new THREE.Vector3();
+  for (const m of meshes) {
+    // pupils: dark; the small "light-*" highlight discs stay white
+    if (/^eye-/.test(m.name)) {
+      m.material = new THREE.MeshBasicMaterial({ color: INK, side: THREE.DoubleSide });
+    }
+    if (/^(eye-|light-)/.test(m.name)) continue;   // no outline shell on eyes/highlights (it showed up as a ring around the pupil)
+
+    m.getWorldScale(ws);
+    const thin = /^(arm|leg|feeler|eyebrows|mouth)/.test(m.name);   // slimmer line on slim parts
+    const local = (OUTLINE_WORLD * (thin ? 0.35 : 1)) / Math.max(ws.y, 0.05);
+    const mat = new THREE.MeshBasicMaterial({ color: INK, side: THREE.BackSide });
+    mat.onBeforeCompile = (sh) => {
+      sh.uniforms.uOutline = { value: local };
+      sh.vertexShader = 'uniform float uOutline;\n' + sh.vertexShader.replace(
+        '#include <begin_vertex>',
+        'vec3 transformed = position + normalize(normal) * uOutline;');
+    };
+    const hull = m.isSkinnedMesh ? new THREE.SkinnedMesh(m.geometry, mat) : new THREE.Mesh(m.geometry, mat);
+    hull.name = m.name + '__outline';
+    hull.position.copy(m.position); hull.quaternion.copy(m.quaternion); hull.scale.copy(m.scale);
+    hull.frustumCulled = false;
+    hull.userData.isOutline = true;
+    m.parent.add(hull);
+    if (m.isSkinnedMesh) hull.bind(m.skeleton, m.bindMatrix);
+  }
+}
+
+/* ---------- picking ---------- */
+const raycaster = new THREE.Raycaster();
+const ndc = new THREE.Vector2();
+const pointer = { x: -1, y: -1, inside: false };
+let hovered = null;                   // passer entry under the pointer
+
+function setPointer(e) {
+  pointer.x = e.clientX; pointer.y = e.clientY; pointer.inside = true;
+  ndc.set((e.clientX / innerWidth) * 2 - 1, -(e.clientY / innerHeight) * 2 + 1);
+}
+function pick() {
+  raycaster.setFromCamera(ndc, camera);
+  let best = null, bestDist = Infinity;
+  for (const p of passers) {
+    p.root.updateMatrixWorld(true);
+    const hits = raycaster.intersectObject(p.root, true);
+    if (hits.length && hits[0].distance < bestDist) { best = p; bestDist = hits[0].distance; }
+  }
+  return best;
+}
+canvas.addEventListener('pointermove', (e) => { setPointer(e); });
+canvas.addEventListener('pointerleave', () => { pointer.inside = false; });
+canvas.addEventListener('pointerdown', (e) => {
+  setPointer(e);
+  const hit = pick();
+  if (hit) say(hit.cfg.click);
+});
+
+/* ---------- bubbles ---------- */
+const hoverEl = document.getElementById('hoverBubble');
+const sayEl = document.getElementById('sayBubble');
+let sayTimer = 0, sayText = '';
+
+function say(text) {
+  sayText = text;
+  sayEl.textContent = text;
+  sayEl.classList.add('show');
+  clearTimeout(sayTimer);
+  sayTimer = setTimeout(() => sayEl.classList.remove('show'), SAY_DURATION_MS);
+}
+
+const box = new THREE.Box3(), v = new THREE.Vector3();
+/** screen-space point at the top-centre of an object's bounding box */
+function topOfObject(obj, out) {
+  obj.updateMatrixWorld(true);
+  box.makeEmpty().expandByObject(obj, true);
+  v.set((box.min.x + box.max.x) / 2, box.max.y, (box.min.z + box.max.z) / 2).project(camera);
+  out.x = (v.x * 0.5 + 0.5) * innerWidth;
+  out.y = (-v.y * 0.5 + 0.5) * innerHeight;
+}
+function place(el, pt, gap) {
+  const w = el.offsetWidth, h = el.offsetHeight;
+  const x = Math.min(Math.max(pt.x - w / 2, 8), innerWidth - w - 8);
+  const y = Math.max(pt.y - h - gap, 8);
+  el.style.transform = `translate(${x}px, ${y}px)`;
+}
+
+const pt = { x: 0, y: 0 };
+function tick() {
+  mixer_.mixer.update(clock.getDelta());
+
+  // hover
+  hovered = pointer.inside ? pick() : null;
+  canvas.classList.toggle('hovering', !!hovered);
+  if (hovered) {
+    if (hoverEl.textContent !== hovered.cfg.hover) hoverEl.textContent = hovered.cfg.hover;
+    topOfObject(hovered.root, pt);
+    place(hoverEl, pt, 16);
+    hoverEl.classList.add('show');
+  } else {
+    hoverEl.classList.remove('show');
+  }
+
+  // speech above the main shrimp
+  if (mainRoot && sayEl.classList.contains('show')) {
+    topOfObject(mainRoot, pt);
+    place(sayEl, pt, 16);
+  }
+
+  renderer.render(scene, camera);
+}
+
+// test hook
+window.__shrimp = { camera, scene, passers, say, get mainRoot() { return mainRoot; } };
+</script>
+</body>
+</html>
