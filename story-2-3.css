@@ -1,5 +1,5 @@
 body {
-    background: url('/elements-2D/background.gif') no-repeat center center fixed;
+    background: url('/elements-2D/backgrounds/sky-paint.png') no-repeat center center fixed;
     background-size: cover;
 }
 
@@ -393,6 +393,21 @@ h3 {
     bottom: 100%;
     border: 8px solid transparent;
     border-bottom-color: #000;
+}
+
+/* Fade to white before the next story */
+.fade-overlay {
+    position: fixed;
+    inset: 0;
+    background: #ffffff;
+    opacity: 0;
+    pointer-events: none;
+    z-index: 100;
+    transition: opacity 1.5s ease;
+}
+
+.fade-overlay.show {
+    opacity: 1;
 }
 
 /* ---------- Mobile ---------- */

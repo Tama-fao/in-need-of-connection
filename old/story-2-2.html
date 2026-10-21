@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Story 2</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Single+Day&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Rock+Salt&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="story-2-3.css">
+</head>
+<body>
+
+<main id="stage">
+
+    <!-- Top half: seagull speech bubbles (they take turns) -->
+    <section id="bubbles">
+        <div class="gull-bubble left">
+            <h3 class="full">Have you seen the new episode of Sardinald the brave and his quest for the deep sea pearl. Wasn't it just sooooooo good.</h3>
+            <h3 class="short">Show Show Show Show Show</h3>
+        </div>
+        <div class="gull-bubble right">
+            <h3 class="full">Yeah the action scene was like really good. Like when Sardinald lost his sword and had to grab posidon's trident of the altar.</h3>
+            <h3 class="short">Trident Trident Trident Trident </h3>
+        </div>
+        <div class="gull-bubble left">
+            <h3 class="full">But did you not think that the princess was kind of off this episode like usually she is all over sardinald but this episode she was not there much.</h3>
+            <h3 class="short">Princess Princess  </h3>
+        </div>
+        <div class="gull-bubble right">
+            <h3 class="full">I think there is something a foot the little sister that is causing all this drama. I think it is an overdone trope but whatever.</h3>
+            <h3 class="short">Drama Drama Drama Drama</h3>
+        </div>
+    </section>
+
+    <!-- Middle: seagull, shrimp, seagull -->
+    <section id="scene">
+        <div id="gull-left-wrap" class="gull-wrap">
+            <img class="gull gull-normal" id="seagull-left" src="/in-need-of-connection/elements-2D/story-2-1/seagull-left-talk.gif" alt="seagull left">
+            <img class="gull shook-img" id="seagull-left-shook" src="/in-need-of-connection/elements-2D/story-2-1/seagull-left-shook.png" alt="left shook">
+            <img class="gull smile-img" id="seagull-left-smile" src="/in-need-of-connection/elements-2D/story-2-1/seagull-left-smile.png" alt="left smile">
+
+        </div>
+
+        <div id="shrimp-wrap" data-pose="base">
+            <div class="shrimp-bubble" id="small-talk"><h2>i</h2></div>
+            <div class="shrimp-bubble" id="mid-talk"><h2>i saw</h2></div>
+            <div class="shrimp-bubble" id="big-talk"><h2>I SAW IT TOO</h2></div>
+            <div class="shrimp-bubble" id="after-talk"><h2>I think the seaturtle cult has something to do with it.</h2></div>
+
+            <img id="shrimp-close" src="/in-need-of-connection/elements-2D/story-2-1/shrimp-base.gif" alt="closed mouth">
+            <img id="shrimp-trytalk" src="/in-need-of-connection/elements-2D/story-2-1/shrimp-trytalk.png" alt="talking shrimp">
+            <img id="shrimp-shout" src="/in-need-of-connection/elements-2D/story-2-1/shrimp-shout.png" alt="shouting shrimp">
+            <img id="shrimp-normal" src="/in-need-of-connection/elements-2D/story-2-1/shrimp-normal.png" alt="normal shrimp">
+
+        </div>
+
+        <div id="gull-right-wrap" class="gull-wrap">
+            <img class="gull gull-normal" id="seagull-right" src="/in-need-of-connection/elements-2D/story-2-1/seagull-talk-right.gif" alt="seagull right">
+            <img class="gull shook-img" id="seagull-right-shook" src="/in-need-of-connection/elements-2D/story-2-1/seagull-right-shook.png" alt="right shook">
+            <img class="gull smile-img" id="seagull-right-smile" src="/in-need-of-connection/elements-2D/story-2-1/seagull-right-smile.png" alt="right smile">
+        </div>
+    </section>
+
+    <!-- Bottom: plate with the talk button -->
+    <section id="table">
+        <div id="plate-wrap">
+            <img id="plate" src="/in-need-of-connection/elements-2D/story-2-1/plate1.png" alt="plate">
+            <button id="talk-btn" type="button">Talk</button>
+        </div>
+    </section>
+
+</main>
+
+<div id="outro" class="story-text">
+    <h1>What a nice conversation</h1>
+</div>
+
+<div id="corner-icons">
+    <a id="menu-link" href="index.html">
+        <img id="menu" src="/in-need-of-connection/elements-2D/menu-icon-1.png" alt="Menu">
+    </a>
+
+    <div id="hint">
+        <div id="hint-popup" role="tooltip">
+            Try being more aggressive with your talking and see what happens!
+        </div>
+        <img id="hint-img" src="/in-need-of-connection/elements-2D/hint.png" alt="hint">
+    </div>
+</div>
+
+<script>
+/* ---------- Hint pop-up ---------- */
+const hintImg = document.getElementById('hint-img');
+const hintPopup = document.getElementById('hint-popup');
+
+hintImg.addEventListener('click', (e) => {
+    e.stopPropagation();
+    hintPopup.classList.toggle('show');
+});
+document.addEventListener('click', () => hintPopup.classList.remove('show'));
+
+/* ---------- Game ---------- */
+const stage      = document.getElementById('stage');
+const gullLines  = Array.from(document.querySelectorAll('.gull-bubble'));
+const gullLeft   = document.getElementById('gull-left-wrap');
+const gullRight  = document.getElementById('gull-right-wrap');
+const shrimpWrap = document.getElementById('shrimp-wrap');
+const talkBtn    = document.getElementById('talk-btn');
+const outro      = document.getElementById('outro');
+
+const bubbles = {
+    small: document.getElementById('small-talk'),
+    mid:   document.getElementById('mid-talk'),
+    big:   document.getElementById('big-talk'),
+    after: document.getElementById('after-talk')
+};
+
+/* Tuning */
+const LINE_TIME     = 7000;  // how long each seagull line stays up (ms)
+const LINE_STEP     = 3500;  // delay before the next seagull starts talking (ms) -> overlap = LINE_TIME - LINE_STEP
+const MASH_WINDOW   = 1200;  // presses counted within this window (ms)
+const MID_PRESSES   = 4;     // presses in the window -> mid talk
+const BIG_PRESSES   = 8;     // presses in the window -> big talk (interrupt)
+const SMALL_HIDE    = 300;  // small/mid bubble disappears after this much idle time (ms)
+const AFTER_DELAY   = 3000;  // after-talk bubble appears this long after the big talk (ms)
+const OUTRO_DELAY   = 7000;  // outro appears this long after the interruption (ms)
+
+let lineIndex = 0;
+let lineTimer = null;
+let hideTimers = [];
+let orderCounter = 0;
+let interrupted = false;
+
+let presses = [];
+let level = 0;               // 0 none, 1 small, 2 mid, 3 big
+let hideTimer = null;
+
+/* Seagulls take turns */
+/* Each line appears LINE_STEP after the previous one and stays for LINE_TIME,
+   so two bubbles are on screen together for a while. */
+function nextLine() {
+    if (interrupted) return;
+    const bubble = gullLines[lineIndex];
+    bubble.style.order = ++orderCounter;   // newest bubble always joins below the others
+    bubble.classList.add('show');
+    const wrap = bubble.classList.contains('left') ? gullLeft : gullRight;
+wrap.classList.add('talking');
+hideTimers.push(setTimeout(() => {
+    bubble.classList.remove('show');
+    const side = bubble.classList.contains('left') ? 'left' : 'right';
+    if (!document.querySelector('.gull-bubble.' + side + '.show')) {
+        wrap.classList.remove('talking');
+    }
+}, LINE_TIME));
+    lineIndex = (lineIndex + 1) % gullLines.length;
+    lineTimer = setTimeout(nextLine, LINE_STEP);
+}
+
+/* Shrimp bubbles */
+function setBubble(which) {
+    Object.entries(bubbles).forEach(([key, el]) => el.classList.toggle('show', key === which));
+}
+
+function setPose(pose) {
+    shrimpWrap.dataset.pose = pose;
+}
+
+function setLevel(newLevel) {
+    level = newLevel;
+    setBubble(['', 'small', 'mid', 'big'][newLevel] || '');
+    // 0 = idle, 1-2 = trying to talk, 3 = shouting
+    setPose(['base', 'trytalk', 'trytalk', 'shout'][newLevel] || 'base');
+}
+
+function afterTalk() {
+    // big bubble goes away, calm shrimp says its piece, seagulls smile
+    setBubble('after');
+    setPose('normal');
+    gullLeft.classList.remove('shook');
+    gullRight.classList.remove('shook');
+    gullLeft.classList.add('smiling');
+    gullRight.classList.add('smiling');
+}
+
+function interrupt() {
+    interrupted = true;
+    clearTimeout(lineTimer);
+    hideTimers.forEach(clearTimeout);
+    clearTimeout(hideTimer);
+    talkBtn.disabled = true;
+
+    // seagull bubbles disappear, big shrimp bubble takes over
+    gullLines.forEach(b => b.classList.remove('show'));
+    setLevel(3);
+
+    // everybody is shook / shrimp shouts
+    gullLeft.classList.add('shook');
+    gullRight.classList.add('shook');
+    shrimpWrap.classList.add('shouting');
+
+    gullLeft.classList.remove('talking');
+gullRight.classList.remove('talking');
+
+    setTimeout(afterTalk, AFTER_DELAY);
+    setTimeout(() => outro.classList.add('show'), OUTRO_DELAY);
+}
+
+talkBtn.addEventListener('click', () => {
+    if (interrupted) return;
+
+    const now = performance.now();
+    presses.push(now);
+    presses = presses.filter(t => now - t <= MASH_WINDOW);
+    const count = presses.length;
+
+    let wanted = 1;
+    if (count >= BIG_PRESSES) wanted = 3;
+    else if (count >= MID_PRESSES) wanted = 2;
+
+    if (wanted === 3) {
+        interrupt();
+        return;
+    }
+
+    // bubbles only grow while mashing
+    if (wanted > level) setLevel(wanted);
+
+    clearTimeout(hideTimer);
+    hideTimer = setTimeout(() => {
+        presses = [];
+        setLevel(0);
+    }, SMALL_HIDE);
+});
+
+nextLine();
+</script>
+
+</body>
+</html>

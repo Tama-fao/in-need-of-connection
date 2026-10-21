@@ -1,0 +1,212 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Shrimp Menu</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+  /* Layout: desktop = black stage, one centered image, phone feed pinned bottom-right.
+     Mobile = only the feed, full screen. */
+  :root {
+    --stage: #000000;
+    --glow: #dcdddd;
+    --accent: #ea7f4d;
+    --ink: #000000;
+    --paper: #ffffff;
+    --tile: #d9d9d9;
+    --line: #000000;
+    --font: "Jost", "Futura", "Avenir Next", system-ui, sans-serif;
+    color-scheme: light;
+  }
+  html, body { height: 100%; }
+  body {
+    margin: 0;
+    background: var(--stage);
+    color: var(--ink);
+    font-family: var(--font);
+    font-size: 15px;
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+    box-sizing: border-box;
+    overflow: hidden;
+  }
+
+  /* ---------- Desktop stage ---------- */
+  .stage {
+    position: fixed; inset: 0;
+    display: grid; place-items: center;
+    pointer-events: none;
+  }
+  .hero {
+    position: relative;
+    width: min(46vw, 78vh);
+    aspect-ratio: 1;
+    display: grid; place-items: center;
+  }
+  .hero .glow {
+    position: absolute; inset: 0;
+    border-radius: 50%;
+    background: var(--glow);
+    filter: blur(28px);
+  }
+  .hero .main-image {
+    position: relative;
+    width: 24%; aspect-ratio: 0.58;
+    border-radius: 50%;
+    background: var(--accent);
+    border: 0.9vmin solid var(--line);
+    display: grid; place-items: center;
+    max-width: 100%;
+  }
+  .hero .main-image span {
+    writing-mode: vertical-rl; transform: rotate(180deg);
+    font-size: clamp(18px, 2.4vmin, 30px); font-weight: 400;
+  }
+
+  /* ---------- Phone ---------- */
+  .phone {
+    position: fixed;
+    right: clamp(16px, 4vw, 72px);
+    bottom: 0;
+    width: clamp(300px, 22vw, 380px);
+    height: min(82vh, 820px);
+    background: var(--paper);
+    border-radius: 44px 44px 0 0;
+    padding: 6px 6px 0;
+    box-sizing: border-box;
+    display: flex;
+  }
+  .screen {
+    flex: 1; min-width: 0;
+    border: 10px solid var(--line);
+    border-bottom: 0;
+    border-radius: 38px 38px 0 0;
+    background: var(--paper);
+    display: flex; flex-direction: column;
+    overflow: hidden;
+  }
+  .feed {
+    flex: 1; min-height: 0;
+    overflow-y: auto;
+    padding: 28px 18px 8px;
+    display: flex; flex-direction: column; gap: 22px;
+    scrollbar-width: none;
+    overscroll-behavior: contain;
+  }
+  .feed::-webkit-scrollbar { display: none; }
+
+  .post {
+    display: block;
+    color: inherit; text-decoration: none;
+    flex: none;
+  }
+  .post .pic {
+    position: relative;
+    aspect-ratio: 1.22;
+    background: var(--tile);
+    border: 2px solid var(--line);
+    overflow: hidden;
+  }
+  .post .pic img.cover {
+    position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover;
+  }
+  .post .who {
+    position: absolute; left: 8px; top: 6px;
+    display: flex; align-items: center; gap: 4px;
+    font-size: 14px; line-height: 1;
+  }
+  .post .who img {
+    width: 32px; height: 32px; border-radius: 50%;
+    border: 1.5px solid var(--line); background: var(--paper);
+    display: block;
+  }
+  .post .cap {
+    display: flex; justify-content: space-between; align-items: center;
+    gap: 8px; padding-top: 8px; font-size: 15px;
+  }
+  .post .cap b { font-weight: 600; }
+  .post .cap svg { flex: none; width: 16px; height: 16px; }
+  .post:hover .cap, .post:focus-visible .cap { text-decoration: underline; }
+  .post:focus-visible { outline: 3px solid var(--accent); outline-offset: 4px; }
+
+  .nav {
+    flex: none;
+    border-top: 1px solid var(--line);
+    margin: 0 12px;
+    height: 56px;
+    display: grid; place-items: center;
+  }
+  .nav i {
+    width: 16px; height: 16px; border: 1.5px solid var(--line); border-radius: 4px; display: block;
+  }
+
+  /* ---------- Mobile: only the phone's content ---------- */
+  @media (max-width: 760px) {
+    body { background: var(--paper); padding: 0; overflow: hidden; }
+    .stage { display: none; }
+    .phone {
+      position: fixed; inset: 0;
+      width: auto; height: auto; padding: 0; border-radius: 0;
+      right: 0; bottom: 0;
+    }
+    .screen {
+      border: 0; border-radius: 0;
+      padding-left: max(16px, env(safe-area-inset-left, 0px));
+      padding-right: max(16px, env(safe-area-inset-right, 0px));
+      padding-top: env(safe-area-inset-top, 0px);
+    }
+    .feed { padding: 20px 0 8px; }
+    .nav { margin: 0; height: calc(56px + env(safe-area-inset-bottom, 0px)); padding-bottom: env(safe-area-inset-bottom, 0px); }
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .post .pic { transition: transform .2s ease; }
+    .post:hover .pic { transform: translateY(-2px); }
+  }
+</style>
+
+<div class="stage" aria-hidden="true">
+  <div class="hero">
+    <div class="glow"></div>
+    <!-- Replace with the single centered image -->
+    <div class="main-image"><span>Shrimp</span></div>
+  </div>
+</div>
+
+<main class="phone">
+  <div class="screen">
+    <nav class="feed" id="feed" aria-label="Chapters"></nav>
+    <div class="nav" aria-hidden="true"><i></i></div>
+  </div>
+</main>
+
+<script>
+  // Each post: link target, post image, profile image, caption.
+  // Swap the src values for real images; hrefs point to each chapter's page.
+  var posts = [
+    { href: "chapter-0.html", chapter: "Chapter 0:", title: "The start", name: "Shrimp", liked: true,  tint: "#c9ccc9" },
+    { href: "chapter-1.html", chapter: "Chapter 1:", title: "The swarm", name: "Shrimp", liked: false, tint: "#d3cfca" },
+    { href: "chapter-2.html", chapter: "Chapter 2:", title: "The tide",  name: "Shrimp", liked: false, tint: "#cbd0d3" },
+    { href: "chapter-3.html", chapter: "Chapter 3:", title: "The deep",  name: "Shrimp", liked: false, tint: "#d0d0cb" }
+  ];
+
+  function svgUri(svg) { return "data:image/svg+xml," + encodeURIComponent(svg); }
+  function cover(tint) {
+    return svgUri('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 122 100" preserveAspectRatio="xMidYMid slice"><rect width="122" height="100" fill="' + tint + '"/></svg>');
+  }
+  var avatar = svgUri('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><circle cx="16" cy="16" r="16" fill="#fff"/></svg>');
+  var heartFull = '<svg viewBox="0 0 16 16" aria-label="Liked"><path d="M8 14.5 1.6 8A4 4 0 0 1 8 3a4 4 0 0 1 6.4 5z" fill="#000"/></svg>';
+  var heartEmpty = '<svg viewBox="0 0 16 16" aria-label="Not liked"><path d="M8 14.5 1.6 8A4 4 0 0 1 8 3a4 4 0 0 1 6.4 5z" fill="none" stroke="#000" stroke-width="1.5" stroke-linejoin="round"/></svg>';
+
+  var feed = document.getElementById("feed");
+  posts.forEach(function (p) {
+    var a = document.createElement("a");
+    a.className = "post";
+    a.href = p.href;
+    a.innerHTML =
+      '<div class="pic">' +
+        '<img class="cover" alt="" src="' + cover(p.tint) + '">' +
+        '<div class="who"><img alt="" src="' + avatar + '"><span>' + p.name + '</span></div>' +
+      '</div>' +
+      '<div class="cap"><span><b>' + p.chapter + '</b> ' + p.title + '</span>' + (p.liked ? heartFull : heartEmpty) + '</div>';
+    feed.appendChild(a);
+  });
+</script>
+
+</body></html>

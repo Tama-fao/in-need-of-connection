@@ -24,11 +24,11 @@
         </div>
         <div class="gull-bubble right">
             <h3 class="full">Yeah the action scene was like really good. Like when Sardinald lost his sword and had to grab posidon's trident of the altar.</h3>
-            <h3 class="short">Trident Trident Trident Trident </h3>
+            <h3 class="short">Trident Trident Trident Trident Trident Trident</h3>
         </div>
         <div class="gull-bubble left">
             <h3 class="full">But did you not think that the princess was kind of off this episode like usually she is all over sardinald but this episode she was not there much.</h3>
-            <h3 class="short">Princess Princess  </h3>
+            <h3 class="short">Princess Princess Princess Princess</h3>
         </div>
         <div class="gull-bubble right">
             <h3 class="full">I think there is something a foot the little sister that is causing all this drama. I think it is an overdone trope but whatever.</h3>
@@ -39,9 +39,9 @@
     <!-- Middle: seagull, shrimp, seagull -->
     <section id="scene">
         <div id="gull-left-wrap" class="gull-wrap">
-            <img class="gull gull-normal" id="seagull-left" src="/in-need-of-connection/elements-2D/story-2-1/seagull-left-talk.gif" alt="seagull left">
-            <img class="gull shook-img" id="seagull-left-shook" src="/in-need-of-connection/elements-2D/story-2-1/seagull-left-shook.png" alt="left shook">
-            <img class="gull smile-img" id="seagull-left-smile" src="/in-need-of-connection/elements-2D/story-2-1/seagull-left-smile.png" alt="left smile">
+            <img class="gull gull-normal" id="seagull-left" src="/elements-2D/story-2-1/seagull-left-talk.gif" alt="seagull left">
+            <img class="gull shook-img" id="seagull-left-shook" src="/elements-2D/story-2-1/seagull-left-shook.png" alt="left shook">
+            <img class="gull smile-img" id="seagull-left-smile" src="/elements-2D/story-2-1/seagull-left-smile.png" alt="left smile">
 
         </div>
 
@@ -51,24 +51,24 @@
             <div class="shrimp-bubble" id="big-talk"><h2>I SAW IT TOO</h2></div>
             <div class="shrimp-bubble" id="after-talk"><h2>I think the seaturtle cult has something to do with it.</h2></div>
 
-            <img id="shrimp-close" src="/in-need-of-connection/elements-2D/story-2-1/shrimp-base.gif" alt="closed mouth">
-            <img id="shrimp-trytalk" src="/in-need-of-connection/elements-2D/story-2-1/shrimp-trytalk.png" alt="talking shrimp">
-            <img id="shrimp-shout" src="/in-need-of-connection/elements-2D/story-2-1/shrimp-shout.png" alt="shouting shrimp">
-            <img id="shrimp-normal" src="/in-need-of-connection/elements-2D/story-2-1/shrimp-normal.png" alt="normal shrimp">
+            <img id="shrimp-close" src="/elements-2D/story-2-1/shrimp-base.gif" alt="closed mouth">
+            <img id="shrimp-trytalk" src="/elements-2D/story-2-1/shrimp-trytalk.png" alt="talking shrimp">
+            <img id="shrimp-shout" src="/elements-2D/story-2-1/shrimp-shout.png" alt="shouting shrimp">
+            <img id="shrimp-normal" src="/elements-2D/story-2-1/shrimp-normal.png" alt="normal shrimp">
 
         </div>
 
         <div id="gull-right-wrap" class="gull-wrap">
-            <img class="gull gull-normal" id="seagull-right" src="/in-need-of-connection/elements-2D/story-2-1/seagull-talk-right.gif" alt="seagull right">
-            <img class="gull shook-img" id="seagull-right-shook" src="/in-need-of-connection/elements-2D/story-2-1/seagull-right-shook.png" alt="right shook">
-            <img class="gull smile-img" id="seagull-right-smile" src="/in-need-of-connection/elements-2D/story-2-1/seagull-right-smile.png" alt="right smile">
+            <img class="gull gull-normal" id="seagull-right" src="/elements-2D/story-2-1/seagull-talk-right.gif" alt="seagull right">
+            <img class="gull shook-img" id="seagull-right-shook" src="/elements-2D/story-2-1/seagull-right-shook.png" alt="right shook">
+            <img class="gull smile-img" id="seagull-right-smile" src="/elements-2D/story-2-1/seagull-right-smile.png" alt="right smile">
         </div>
     </section>
 
     <!-- Bottom: plate with the talk button -->
     <section id="table">
         <div id="plate-wrap">
-            <img id="plate" src="/in-need-of-connection/elements-2D/story-2-1/plate1.png" alt="plate">
+            <img id="plate" src="/elements-2D/story-2-1/plate1.png" alt="plate">
             <button id="talk-btn" type="button">Talk</button>
         </div>
     </section>
@@ -79,16 +79,19 @@
     <h1>What a nice conversation</h1>
 </div>
 
+<!-- White overlay that fades in before jumping to the next story -->
+<div class="fade-overlay" id="fade-overlay"></div>
+
 <div id="corner-icons">
     <a id="menu-link" href="index.html">
-        <img id="menu" src="/in-need-of-connection/elements-2D/menu-icon-1.png" alt="Menu">
+        <img id="menu" src="/elements-2D/menu-icon-2.png" alt="Menu">
     </a>
 
     <div id="hint">
         <div id="hint-popup" role="tooltip">
             Try being more aggressive with your talking and see what happens!
         </div>
-        <img id="hint-img" src="/in-need-of-connection/elements-2D/hint.png" alt="hint">
+        <img id="hint-img" src="/elements-2D/hint-2.png" alt="hint">
     </div>
 </div>
 
@@ -128,6 +131,9 @@ const BIG_PRESSES   = 8;     // presses in the window -> big talk (interrupt)
 const SMALL_HIDE    = 300;  // small/mid bubble disappears after this much idle time (ms)
 const AFTER_DELAY   = 3000;  // after-talk bubble appears this long after the big talk (ms)
 const OUTRO_DELAY   = 7000;  // outro appears this long after the interruption (ms)
+const NEXT_STORY_DELAY = 5000; // next story loads this long after the outro appears (ms)
+const FADE_DURATION    = 1500; // fade to white at the end of that wait (keep in sync with the CSS transition)
+const fadeOverlay = document.getElementById('fade-overlay');
 
 let lineIndex = 0;
 let lineTimer = null;
@@ -206,7 +212,13 @@ function interrupt() {
 gullRight.classList.remove('talking');
 
     setTimeout(afterTalk, AFTER_DELAY);
-    setTimeout(() => outro.classList.add('show'), OUTRO_DELAY);
+    setTimeout(() => {
+        outro.classList.add('show');
+
+        // 5 s after the outro appears: fade to white, then go to the next story
+        setTimeout(() => fadeOverlay.classList.add('show'), NEXT_STORY_DELAY - FADE_DURATION);
+        setTimeout(() => { window.location.href = 'story-3-4.html'; }, NEXT_STORY_DELAY);
+    }, OUTRO_DELAY);
 }
 
 talkBtn.addEventListener('click', () => {

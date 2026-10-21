@@ -1,0 +1,489 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Story 3</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Single+Day&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="story-3-4.css">
+</head>
+<body>
+<canvas id="c"></canvas>
+<div id="hoverBubble" class="bubble hover"></div>
+<div id="sayBubble" class="bubble say"></div>
+<div id="status">Loading shrimp…</div>
+
+<img id="thought" src="/elements-2D/story-3/thought.png" alt="thought">
+
+<div id="end" aria-hidden="true">
+  <div class="row">
+    <div class="bubble" id="endLeft">It's okay, I am happy you are here.</div>
+    <div class="bubble" id="endRight">Sorry I was late, got swarmed.</div>
+  </div>
+  <img src="/elements-2D/Story-3/happy-end.png" alt="The two shrimp, happy together">
+</div>
+
+<div id="corner-icons">
+  <a id="menu-link" href="index.html">
+    <img id="menu" src="/elements-2D/menu-icon-2.png" alt="Menu">
+  </a>
+
+  <div id="hint">
+    <!-- Pop-up with the hint text, appears above the hint image when clicked -->
+    <div id="hint-popup" role="tooltip">
+      Try clicking on passing shrimp and see what happens!
+    </div>
+    <img id="hint-img" src="/elements-2D/hint-2.png" alt="hint">
+  </div>
+  </div>
+
+
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+} }
+</script>
+
+
+
+<script type="module">
+import * as THREE from 'three';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+
+/* ------------------------------------------------------------------
+   CONFIG — add more passing shrimp here later.
+   `root`  = name of the shrimp's top-level node in the .glb
+   `hover` = text shown while the mouse is over it
+   `click` = text the main shrimp says when it is clicked
+------------------------------------------------------------------- */
+const GLB_SRC   = '/models/story-3-1.glb';
+const MAIN_ROOT = 'main-shrimp';
+const PASSERS = [
+  { root: 'friend-box',  hover: 'maybe?', click: 'My friend!', kind: 'friend' },
+  { root: 'passer1',       hover: 'maybe?', click: 'Who are you?' },
+  { root: 'passer2',       hover: 'maybe?', click: 'I got no money!' },
+  { root: 'passer3',       hover: 'maybe?', click: 'No time' },
+  { root: 'passer4',       hover: 'maybe?', click: 'Leave me alone' },
+  { root: 'passer5',       hover: 'maybe?', click: 'Not interested in helping land folk' },
+  { root: 'passer6',       hover: 'maybe?', click: 'I do not believe in fish god' },
+  { root: 'passer7',       hover: 'maybe?', click: 'What do you want? I got nothing!' },
+  { root: 'passer8',       hover: 'maybe?', click: 'I am not local, have no directions' },
+  { root: 'passer9',       hover: 'maybe?', click: 'What you selling?' },
+];
+const SAY_DURATION_MS = 2800;
+const ENDING_DELAY_MS = 1500;     // after the friend is clicked: wait this long, then switch to the happy-end picture
+const SHADOW_OPACITY  = 0.14;      // the round shadow under each box (was 0.4 in the file) - lower = more transparent
+const PASSER_HOLD_MS  = 1200;
+const SHOCK_MS        = 1600;      // main-shrimp-shock is slowed down to last this long (the clip itself is 0.4s)      // how long a passer's face-only reaction (angy / eye squize) is held
+
+/* Clips that only play on click. Everything else in the file loops.
+   (match is on the clip name; spelling variants are accepted) */
+const ANGY      = /angy|angry/i;
+const SQUIZE    = /squ[ie]+[sz]e/i;
+const FRIEND_FIND = /friend.?find/i;
+const FRIEND_WALK = /friend.?walk/i;     // the friend's looping walk (replaces whatever else loops on the friend's rig)
+const M_SHOCK   = /shrimp.*shock/i;
+const M_SHOOK   = /mouth.*(shook|shock)/i;
+const M_HAPPY   = /shrimp.*happy/i;
+const M_SMILE   = /mouth.*smile/i;
+const M_BROW_HAPPY = /eyebrow.*happy/i;
+const REACTION_RE = new RegExp([ANGY, SQUIZE, FRIEND_FIND, M_SHOCK, M_SHOOK, M_HAPPY, M_SMILE, M_BROW_HAPPY].map(r => r.source).join('|'), 'i');
+
+/* Static camera (never moves) */
+/* Straight-on: the camera looks along -Z with no tilt (look target has the same x and y as the camera) */
+const CAMERA = { pos: [0.3, -0.5, 11.5], look: [0.3, -0.9, 1], fov: 46, refAspect: 16 / 9 };
+
+
+
+/* ---------- hint popup ---------- */
+const hintImg = document.getElementById('hint-img');
+const hintPopup = document.getElementById('hint-popup');
+let hintTimer = 0;
+
+hintImg.addEventListener('click', (e) => {
+  e.stopPropagation();
+  const open = hintPopup.classList.toggle('show');
+  clearTimeout(hintTimer);
+  if (open) hintTimer = setTimeout(() => hintPopup.classList.remove('show'), 4000);   // auto-hide
+});
+document.addEventListener('pointerdown', (e) => {
+  if (e.target !== hintImg) hintPopup.classList.remove('show');                      // click elsewhere closes it
+});
+
+/* ------------------------------------------------------------------ */
+const canvas = document.getElementById('c');
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(CAMERA.fov, 1, 0.1, 100);
+camera.position.set(...CAMERA.pos);
+camera.lookAt(...CAMERA.look);
+
+function resize() {
+  const w = innerWidth, h = innerHeight, aspect = w / h;
+  renderer.setSize(w, h, false);
+  camera.aspect = aspect;
+  // keep the same horizontal framing on narrow screens (camera itself stays put)
+  const base = THREE.MathUtils.degToRad(CAMERA.fov);
+  camera.fov = aspect >= CAMERA.refAspect
+    ? CAMERA.fov
+    : THREE.MathUtils.radToDeg(2 * Math.atan(Math.tan(base / 2) * CAMERA.refAspect / aspect));
+  camera.updateProjectionMatrix();
+}
+addEventListener('resize', resize);
+resize();
+
+/* ---------- load ---------- */
+const mixer_ = { mixer: null };
+let anims = [];
+const loops = [];          // looping actions: { action, keys:Set(track names), suppressed:int }
+const passers = [];        // { cfg, root, bubbleKey }
+let mainRoot = null;
+const clock = new THREE.Clock();
+
+new GLTFLoader().load(GLB_SRC, (gltf) => {
+  scene.add(gltf.scene);
+  gltf.scene.updateMatrixWorld(true);
+  styleScene(gltf.scene);
+
+  mainRoot = gltf.scene.getObjectByName(MAIN_ROOT);
+  for (const cfg of PASSERS) {
+    const root = gltf.scene.getObjectByName(cfg.root);
+    if (!root) { console.warn('Passer root not found:', cfg.root); continue; }
+    passers.push({ cfg, root });
+  }
+
+  // loop every animation (action / normal / idle / walking ...) except the click-only reactions
+  const mixer = new THREE.AnimationMixer(gltf.scene);
+  // Blender can export one action that drives several shrimp (e.g. passerby-walking drives passer1 AND the friend).
+  // Split such clips per shrimp so each shrimp gets its own copy and nothing is dropped or shared.
+  const owner = new Map();                                   // node name -> top-level shrimp it belongs to
+  for (const top of gltf.scene.children) top.traverse((o) => owner.set(o.name, top));
+  anims = [];
+  for (const clip of gltf.animations) {
+    const groups = new Map();
+    for (const t of clip.tracks) {
+      const o = owner.get(THREE.PropertyBinding.parseTrackName(t.name).nodeName);
+      if (!groups.has(o)) groups.set(o, []);
+      groups.get(o).push(t);
+    }
+    if (groups.size <= 1) { anims.push(clip); continue; }
+    for (const tracks of groups.values()) anims.push(new THREE.AnimationClip(clip.name, clip.duration, tracks));
+  }
+  // friend-walk: keep only the tracks that belong to the friend's own rig, so it can never touch (or displace) another shrimp's walk
+  const friendRoot = gltf.scene.getObjectByName('friend-box');
+  const inFriend = (t) => friendRoot && THREE.PropertyBinding.findNode(friendRoot, THREE.PropertyBinding.parseTrackName(t.name).nodeName);
+  const friendWalks = anims.filter(c => FRIEND_WALK.test(c.name))
+    .map(c => new THREE.AnimationClip(c.name, c.duration, c.tracks.filter(inFriend)))
+    .filter(c => c.tracks.length);
+  const walkKeys = new Set(friendWalks.flatMap(c => c.tracks.map(t => t.name)));
+  const loopClips = [
+    ...anims.filter(c => !REACTION_RE.test(c.name) && !FRIEND_WALK.test(c.name)
+                         && !(friendRoot && c.tracks.some(t => walkKeys.has(t.name) && inFriend(t)))),   // friend-walk takes over those friend tracks
+    ...friendWalks,
+  ];
+  for (const clip of loopClips) {
+    const a = mixer.clipAction(clip);
+    if (clip.duration > 0) a.setLoop(THREE.LoopRepeat, Infinity);
+    a.play();
+    loops.push({ action: a, keys: new Set(clip.tracks.map(t => t.name)), suppressed: 0 });
+  }
+  mixer_.mixer = mixer;
+  const wanted = [FRIEND_WALK, ANGY, SQUIZE, FRIEND_FIND, M_SHOCK, M_SHOOK, M_HAPPY, M_SMILE, M_BROW_HAPPY];
+  const missing = wanted.filter(r => !anims.some(c => r.test(c.name)));
+  if (missing.length) console.warn('No clip in the .glb matches', missing.join(' '), '- using morph/bounce fallbacks');
+
+  document.getElementById('status').classList.add('done');
+  renderer.setAnimationLoop(tick);
+}, undefined, (err) => {
+  console.error(err);
+  document.getElementById('status').textContent = 'Could not load the model.';
+});
+
+/* ---------- look: dark ink outlines (the file's line-art pass isn't exported in .glb) ---------- */
+const INK = new THREE.Color(0x1d2a33);
+const OUTLINE_WORLD = 0.028;               // outline width in world units
+const STRAY = ['Circle.014', 'Circle.015', 'light-right-eye.001', 'light-left-eye.001'];   // loose leftover meshes in the file
+
+function styleScene(root) {
+  for (const n of STRAY) { const o = root.getObjectByName(n); if (o) o.visible = false; }
+  root.traverse((o) => { if (/^light-/.test(o.name)) o.visible = false; });   // detached eye-highlight specks
+
+  // The file's materials are lit (PBR) but the scene has no lights, so they render black.
+  // Swap them for flat, unlit materials that keep each material's colour (e.g. the orange).
+  const flat = new Map();
+  const toFlat = (src) => {
+    if (!flat.has(src)) flat.set(src, new THREE.MeshBasicMaterial({ color: src.color, side: THREE.DoubleSide }));
+    return flat.get(src);
+  }
+  const shadowMat = new THREE.MeshBasicMaterial({
+    color: 0x000000, transparent: true, opacity: SHADOW_OPACITY, depthWrite: false, side: THREE.DoubleSide });
+  root.traverse((o) => {
+    if (!o.isMesh) return;
+    if (/^shadow/.test(o.name)) {            // soft circle under each box
+      o.material = shadowMat; o.renderOrder = -1; o.raycast = () => {}; o.userData.isShadow = true;
+      return;
+    }
+    o.material = Array.isArray(o.material) ? o.material.map(toFlat) : toFlat(o.material);
+  });
+
+  const meshes = [];
+  root.traverse((o) => { if (o.isMesh && o.visible && !o.userData.isShadow) meshes.push(o); });
+  const ws = new THREE.Vector3();
+  for (const m of meshes) {
+    // pupils: dark; the small "light-*" highlight discs stay white
+    if (/^eye-/.test(m.name)) {
+      m.material = new THREE.MeshBasicMaterial({ color: INK, side: THREE.DoubleSide });
+    }
+    if (/^(eye-|light-)/.test(m.name)) continue;   // no outline shell on eyes/highlights (it showed up as a ring around the pupil)
+
+    m.getWorldScale(ws);
+    const thin = /^(arm|leg|feeler|eyebrows|mouth)/.test(m.name);   // slimmer line on slim parts
+    const local = (OUTLINE_WORLD * (thin ? 0.35 : 1)) / Math.max(ws.y, 0.05);
+    const mat = new THREE.MeshBasicMaterial({ color: INK, side: THREE.BackSide });
+    mat.onBeforeCompile = (sh) => {
+      sh.uniforms.uOutline = { value: local };
+      sh.vertexShader = 'uniform float uOutline;\n' + sh.vertexShader.replace(
+        '#include <begin_vertex>',
+        'vec3 transformed = position + normalize(normal) * uOutline;');
+    };
+    const hull = m.isSkinnedMesh ? new THREE.SkinnedMesh(m.geometry, mat) : new THREE.Mesh(m.geometry, mat);
+    hull.name = m.name + '__outline';
+    hull.position.copy(m.position); hull.quaternion.copy(m.quaternion); hull.scale.copy(m.scale);
+    hull.frustumCulled = false;
+    hull.userData.isOutline = true;
+    if (m.morphTargetInfluences) hull.morphTargetInfluences = m.morphTargetInfluences;   // outline follows mouth/brow morphs
+    m.parent.add(hull);
+    if (m.isSkinnedMesh) hull.bind(m.skeleton, m.bindMatrix);
+  }
+}
+
+/* ---------- picking ---------- */
+const raycaster = new THREE.Raycaster();
+const ndc = new THREE.Vector2();
+const pointer = { x: -1, y: -1, inside: false };
+let hovered = null;                   // passer entry under the pointer
+
+function setPointer(e) {
+  pointer.x = e.clientX; pointer.y = e.clientY; pointer.inside = true;
+  ndc.set((e.clientX / innerWidth) * 2 - 1, -(e.clientY / innerHeight) * 2 + 1);
+}
+function pick() {
+  raycaster.setFromCamera(ndc, camera);
+  let best = null, bestDist = Infinity;
+  for (const p of passers) {
+    p.root.updateMatrixWorld(true);
+    const hits = raycaster.intersectObject(p.root, true);
+    if (hits.length && hits[0].distance < bestDist) { best = p; bestDist = hits[0].distance; }
+  }
+  return best;
+}
+canvas.addEventListener('pointermove', (e) => { setPointer(e); });
+canvas.addEventListener('pointerleave', () => { pointer.inside = false; });
+canvas.addEventListener('pointerdown', (e) => {
+  setPointer(e);
+  const hit = pick();
+  if (!hit) return;
+  say(hit.cfg.click, hit.cfg.kind === 'friend' ? null : hit.root);   // passer talks from above itself
+  if (hit.cfg.kind === 'friend') onFriend(hit); else onPasser(hit);
+});
+
+/* ---------- click reactions ---------- */
+const reactions = new Map();     // key -> [ { a, end, sup:[loops], done } ]   (real clips)
+const procs = [];                // { key, start, dur, apply(p) -> undo }       (fallbacks)
+
+function bindsWithin(clip, root) {
+  const t = clip.tracks[0]; if (!t) return false;
+  return !!THREE.PropertyBinding.findNode(root, THREE.PropertyBinding.parseTrackName(t.name).nodeName);
+}
+function findMesh(root, re) {
+  let r = null;
+  root.traverse((o) => { if (!r && o.isMesh && !o.userData.isOutline && re.test(o.name)) r = o; });
+  return r;
+}
+function releaseAction(r) {
+  if (r.done) return;
+  r.done = true;
+  r.a.fadeOut(0.15);                                          // reaction fades out ...
+  for (const l of r.sup) if (--l.suppressed === 0) { l.action.setEffectiveWeight(1); l.action.fadeIn(0.15); }   // ... and the loop (idle / walking) comes back
+}
+function stopReaction(key) {
+  for (const r of reactions.get(key) || []) releaseAction(r);
+  reactions.delete(key);
+  for (let i = procs.length - 1; i >= 0; i--) if (procs[i].key === key) procs.splice(i, 1);
+}
+
+/* fallbacks, used when the .glb has no clip with that name */
+const ease = (p) => Math.min(1, p * 6, (1 - p) * 6);           // quick in, hold, quick out
+const morphFb = (root, target) => {
+  // a face part can be split into several meshes (Plane007, Plane007_1 ...); drive every one that has this shape key
+  const ms = [];
+  root.traverse((o) => { if (o.isMesh && !o.userData.isOutline && o.morphTargetDictionary && o.morphTargetDictionary[target] !== undefined) ms.push(o); });
+  if (!ms.length) return null;
+  return (p) => {
+    const old = ms.map(m => m.morphTargetInfluences[m.morphTargetDictionary[target]]);
+    ms.forEach(m => { m.morphTargetInfluences[m.morphTargetDictionary[target]] = ease(p); });
+    return () => ms.forEach((m, k) => { m.morphTargetInfluences[m.morphTargetDictionary[target]] = old[k]; });
+  };
+};
+const combine = (...fns) => (p) => { const u = fns.map(f => f(p)); return () => u.forEach(x => x()); };
+const jumpFb = (root) => {                 // one single hop, then stay still (no shaking: keeps the speech bubble readable)
+  const h = new THREE.Box3().setFromObject(root).getSize(new THREE.Vector3()).y || 1;
+  return (p) => {
+    const y = 0.3 * h * Math.sin(Math.PI * Math.min(1, p / 0.45));
+    root.position.y += y;
+    return () => { root.position.y -= y; };
+  };
+};
+const squintFb = (root) => {
+  const e = findMesh(root, /^eye-/); if (!e) return null;
+  return (p) => { const old = e.scale.y; e.scale.y = old * (1 - 0.75 * ease(p)); return () => { e.scale.y = old; }; };
+};
+const bounceFb = (root) => {
+  const h = new THREE.Box3().setFromObject(root).getSize(new THREE.Vector3()).y || 1;
+  return (p) => { const y = 0.2 * h * Math.abs(Math.sin(p * Math.PI * 2)); root.position.y += y; return () => { root.position.y -= y; }; };
+};
+
+/** play each spec's clip(s) once on `root`; the looping clips that animate the same properties pause meanwhile */
+function react(key, root, specs, holdMs) {
+  if (!root || !mixer_.mixer) return;
+  stopReaction(key);
+  const list = [];
+  const now = clock.elapsedTime;
+  for (const spec of specs) {
+    const clips = anims.filter(c => spec.re.test(c.name) && c.tracks.length && bindsWithin(c, root));
+    if (!clips.length) {
+      const apply = spec.fb && spec.fb(root);
+      if (apply) procs.push({ key, start: now, dur: (spec.hold ?? holdMs) / 1000, apply });
+      continue;
+    }
+    for (const clip of clips) {
+      const a = mixer_.mixer.clipAction(clip);
+      const faceOnly = clip.tracks.every(t => /morphTargetInfluences/.test(t.name));   // mouth/brow: hold the pose
+      const len = !faceOnly && spec.stretch ? spec.stretch / 1000 : clip.duration;   // optionally slow the clip down
+      a.reset(); a.setLoop(THREE.LoopOnce, 1); a.clampWhenFinished = true;
+      a.timeScale = clip.duration > 0 ? clip.duration / len : 1;
+      a.fadeIn(0.06).play();
+      const keys = new Set(clip.tracks.map(t => t.name));
+      const sup = loops.filter(l => [...l.keys].some(k => keys.has(k)));
+      for (const l of sup) { if (l.suppressed++ === 0) l.action.setEffectiveWeight(0); }
+      list.push({ a, end: now + (faceOnly ? (spec.hold ?? holdMs) / 1000 : len), sup });
+    }
+  }
+  reactions.set(key, list);
+}
+function updateReactions(now) {
+  for (const [key, list] of reactions) {
+    for (const r of list) {
+      if (!r.done && now >= r.end) releaseAction(r);
+    }
+    if (list.every(r => r.done)) reactions.delete(key);
+  }
+}
+
+function onPasser(hit) {
+  // the passer: angy + eye squize, then back to its loop
+  react('p:' + hit.cfg.root, hit.root, [
+    { re: ANGY,   fb: (r) => { const f = morphFb(r, 'frown'); return f ? combine(f, jumpFb(r)) : jumpFb(r); } },
+    { re: SQUIZE, fb: squintFb },
+  ], PASSER_HOLD_MS);
+  // the main shrimp: shock
+  react('main', mainRoot, [
+    { re: M_SHOCK, stretch: SHOCK_MS },
+    { re: M_SHOOK, fb: (r) => morphFb(r, 'shout'), },
+  ], SAY_DURATION_MS);
+}
+let endTimer = 0, ended = false;
+function showEnding() {
+  if (ended) return; ended = true;
+  document.body.classList.add('ended');                 // fades out the 3D canvas + thought bubble, fades in the picture
+  hoverEl.classList.remove('show'); sayEl.classList.remove('show');
+  setTimeout(() => renderer.setAnimationLoop(null), 1000);   // scene is invisible now: stop rendering
+  setTimeout(() => document.getElementById('endRight').classList.add('show'), 1700);   // right shrimp speaks first
+  setTimeout(() => document.getElementById('endLeft').classList.add('show'), 3300);    // left shrimp answers
+  document.getElementById('end').setAttribute('aria-hidden', 'false');
+}
+function onFriend(hit) {
+  if (!endTimer) endTimer = setTimeout(showEnding, ENDING_DELAY_MS);
+  react('p:' + hit.cfg.root, hit.root, [{ re: FRIEND_FIND, fb: bounceFb }], 1500);
+  react('main', mainRoot, [
+    { re: M_HAPPY,       fb: bounceFb },
+    { re: M_SMILE,       fb: (r) => morphFb(r, 'smile') },
+    { re: M_BROW_HAPPY },
+  ], SAY_DURATION_MS);
+}
+
+/* ---------- bubbles ---------- */
+const hoverEl = document.getElementById('hoverBubble');
+const sayEl = document.getElementById('sayBubble');
+let sayTimer = 0, sayText = '', sayTarget = null;
+
+function say(text, target = null) {      // target = object the bubble sits over (default: main shrimp)
+  sayText = text; sayTarget = target;
+  sayEl.textContent = text;
+  sayEl.classList.add('show');
+  clearTimeout(sayTimer);
+  sayTimer = setTimeout(() => sayEl.classList.remove('show'), SAY_DURATION_MS);
+}
+
+const box = new THREE.Box3(), v = new THREE.Vector3();
+/** screen-space point at the top-centre of an object's bounding box */
+function topOfObject(obj, out) {
+  obj.updateMatrixWorld(true);
+  box.makeEmpty().expandByObject(obj, true);
+  v.set((box.min.x + box.max.x) / 2, box.max.y, (box.min.z + box.max.z) / 2).project(camera);
+  out.x = (v.x * 0.5 + 0.5) * innerWidth;
+  out.y = (-v.y * 0.5 + 0.5) * innerHeight;
+}
+function place(el, pt, gap) {
+  const w = el.offsetWidth, h = el.offsetHeight;
+  const x = Math.min(Math.max(pt.x - w / 2, 8), innerWidth - w - 8);
+  const y = Math.max(pt.y - h - gap, 8);
+  el.style.transform = `translate(${x}px, ${y}px)`;
+}
+
+const pt = { x: 0, y: 0 };
+function tick() {
+  mixer_.mixer.update(clock.getDelta());
+  const now = clock.elapsedTime;
+  updateReactions(now);
+  const undo = [];                         // fallback poses are applied on top of the mixer, then removed after drawing
+  for (let i = procs.length - 1; i >= 0; i--) {
+    const q = procs[i], p = (now - q.start) / q.dur;
+    if (!(p < 1)) { procs.splice(i, 1); continue; }
+    undo.push(q.apply(p));
+  }
+
+  // hover
+  hovered = pointer.inside ? pick() : null;
+  canvas.classList.toggle('hovering', !!hovered);
+  if (hovered) {
+    if (hoverEl.textContent !== hovered.cfg.hover) hoverEl.textContent = hovered.cfg.hover;
+    topOfObject(hovered.root, pt);
+    place(hoverEl, pt, 16);
+    hoverEl.classList.add('show');
+  } else {
+    hoverEl.classList.remove('show');
+  }
+
+  // speech above the main shrimp
+  const speaker = sayTarget || mainRoot;
+  if (speaker && sayEl.classList.contains('show')) {
+    topOfObject(speaker, pt);
+    place(sayEl, pt, 16);
+  }
+
+  renderer.render(scene, camera);
+  for (const u of undo) u();
+}
+
+// test hook
+window.__shrimp = { get anims() { return anims; }, bindsWithin, camera, scene, passers, say, onPasser, onFriend, showEnding, reactions, procs, loops, get mainRoot() { return mainRoot; } };
+</script>
+</body>
+</html>

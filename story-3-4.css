@@ -1,0 +1,222 @@
+
+  :root {
+    --sky-top: #bfeaf5;
+    --sky-bottom: #7cc4dc;
+    --ink: #1d2a33;
+    --bubble: #ffffff;
+    --edge: clamp(12px, 2vw, 32px);
+    --menu-w: clamp(48px, 3vw, 90px);
+    --hint-w: clamp(48px, 7vw, 90px);
+  }
+
+
+ 
+  html, body { margin: 0; height: 100%; overflow: hidden; background: var(--sky-bottom); }
+  body {
+    /*background: linear-gradient(180deg, var(--sky-top) 0%, var(--sky-bottom) 100%);*/
+    background: url('/elements-2D/backgrounds/seafloor-paint-3.png') no-repeat center bottom fixed;
+     font-family:  'Single Day', cursive;
+    color: var(--ink);
+  }
+  canvas { position: fixed; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; }
+  canvas.hovering { cursor: pointer; }
+
+  /* Speech bubbles (hover text + click text) */
+  .bubble {
+    position: fixed; left: 0; top: 0;
+    padding: 8px 14px;
+    background: var(--bubble);
+    border: 2.5px solid var(--ink);
+    border-radius: 16px;
+    font-size: clamp(16px, 2.2vw, 24px);
+    line-height: 1.2;
+    white-space: nowrap;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity .18s ease;
+    will-change: transform, opacity;
+   /* box-shadow: 0 3px 0 rgba(29,42,51,.25);*/
+  }
+  .bubble.show { opacity: 1; }
+  .bubble::after {            /* tail */
+    content: ""; position: absolute; left: 50%; bottom: -11px;
+    width: 14px; height: 14px; background: var(--bubble);
+    border-right: 2.5px solid var(--ink); border-bottom: 2.5px solid var(--ink);
+    transform: translateX(-50%) rotate(45deg);
+  }
+  .bubble.hover { font-size: clamp(14px, 1.8vw, 20px); }
+  .bubble.say { font-size: clamp(18px, 2.6vw, 28px); }
+
+  #status {
+    position: fixed; inset: 0; display: grid; place-items: center;
+    font-size: 22px; transition: opacity .4s; pointer-events: none;
+  }
+  #status.done { opacity: 0; }
+
+    /* ---- ending: 3D scene fades out, only the happy-end picture + two speech bubbles remain ---- */
+    canvas, #thought { transition: opacity .9s ease; }
+    body.ended canvas, body.ended #thought { opacity: 0; pointer-events: none; }
+    #end {
+        position: fixed; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center;
+        gap: 26px; padding: 4vh 16px; box-sizing: border-box;
+        opacity: 0; pointer-events: none; transition: opacity .9s ease .5s;
+    }
+    body.ended #end { opacity: 1; }
+    #end img { max-width: min(90vw, 1000px); max-height: 62vh; object-fit: contain; display: block; }
+    #end .row { display: flex; flex-wrap: wrap; justify-content: center; gap: 22px 40px; }
+    #end .bubble {
+        position: relative; left: auto; top: auto; white-space: normal; text-align: center; max-width: min(42vw, 420px);
+        font-size: clamp(18px, 2.6vw, 30px); opacity: 0; transform: translateY(8px);
+        transition: opacity .6s ease, transform .6s ease;
+    }
+    #end .bubble.show { opacity: 1; transform: none; }
+    @media (max-width: 640px) { #end .bubble { max-width: 90vw; } }
+
+    #thought {
+        position: fixed;
+        top: 15%;
+        right: 40%;
+        width: 100px;
+        height: 100px;
+        opacity: 0.8;
+        pointer-events: none;
+    }
+
+
+/* Menu -------------------------- */
+
+#corner-icons {
+    position: fixed;
+    top: var(--edge);
+    left: var(--edge);
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 30px;
+    z-index: 30;
+}
+
+#menu-link { display: block; }
+
+#menu {
+    display: block;
+    width: var(--menu-w);
+    height: auto;
+}
+
+/* Hint ------------------------*/
+
+#hint {
+    position: relative;
+    height: auto;
+}
+
+#hint-img {
+    margin-top: -20px;
+    cursor: pointer;
+    display: block;
+    width: var(--hint-w);
+    height: auto;
+}
+
+#hint-popup {
+    position: absolute;
+    left: 0;
+    top: calc(100% + 10px);
+    width: max-content;
+    max-width: min(260px, 70vw);
+    padding: 10px 14px;
+    background: #fff;
+    color: #000;
+    border: 2px solid #000;
+    border-radius: 12px;
+    font-family: 'Single Day', cursive;
+    font-size: 1.1rem;
+    pointer-events: none;
+    opacity: 0;
+    transform: translateY(-6px);
+    transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+#hint-popup.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+#hint-popup::after {
+    content: '';
+    position: absolute;
+    left: 18px;
+    bottom: 100%;
+    border: 8px solid transparent;
+    border-bottom-color: #000;
+}
+
+/* ---------- Mobile ---------- */
+@media screen and (max-width: 768px) {
+
+
+    /* Menu -------------------------- */
+
+    #corner-icons {
+    position: fixed;
+    top: var(--edge);
+    left: var(--edge);
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 30px;
+    z-index: 30;
+}
+
+   
+
+    #menu {
+    
+    width: 40px;
+ 
+}
+
+    /* Hint ------------------------*/
+
+   
+
+    #hint-img {
+    margin-top: 0px;
+    width: 60px;
+
+    }
+
+    #hint-popup {
+    position: absolute;
+    left: 0;
+    top: calc(100% + 10px);
+    width: max-content;
+    max-width: min(200px, 70vw);
+    padding: 10px 14px;
+    background: #fff;
+    color: #000;
+    border: 2px solid #000;
+    border-radius: 12px;
+    font-family: 'Single Day', cursive;
+    font-size: 1.1rem;
+    pointer-events: none;
+    opacity: 0;
+    transform: translateY(-6px);
+    transition: opacity 0.25s ease, transform 0.25s ease;
+    }
+
+    #hint-popup.show {
+    opacity: 1;
+    transform: translateY(0);
+    }
+
+    #hint-popup::after {
+    content: '';
+    position: absolute;
+    left: 18px;
+    bottom: 100%;
+    border: 8px solid transparent;
+    border-bottom-color: #000;
+    }
+}

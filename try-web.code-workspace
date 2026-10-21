@@ -1,0 +1,13 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "../../../Documents/GitHub/in-need-of-connection"
+		}
+	],
+	"settings": {
+		"liveServer.settings.multiRootWorkspaceName": "try-web"
+	}
+}
