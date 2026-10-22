@@ -25,13 +25,13 @@
 
     <!-- Shell top right, tail sits behind it and peeks out at the bottom left -->
     <div id="shell-area">
-        <img id="tail" src="/elements-2D/Start-3d-shrimp-1-2.png" alt="Shrimp tail" draggable="false">
-        <img id="shell" src="/elements-2D/Start-3d-shell-2.png" alt="Shell" draggable="false">
+        <img id="tail" src="/in-need-of-connection/elements-2D/Start-3d-shrimp-1-2.png" alt="Shrimp tail" draggable="false">
+        <img id="shell" src="/in-need-of-connection/elements-2D/Start-3d-shell-2.png" alt="Shell" draggable="false">
     </div>
 
     <div id="corner-icons">
         <a id="menu-link" href="index.html">
-          <img id="menu" src="/elements-2D/menu-icon-2.png" alt="Menu">
+          <img id="menu" src="/in-need-of-connection/elements-2D/menu-icon-2.png" alt="Menu">
         </a>
       
         <div id="hint">
@@ -39,7 +39,7 @@
           <div id="hint-popup" role="tooltip">
             Try dragging the shrimp tail and see what happens!
           </div>
-          <img id="hint-img" src="/elements-2D/hint-2.png" alt="hint">
+          <img id="hint-img" src="/in-need-of-connection/elements-2D/hint-2.png" alt="hint">
         </div>
         </div>
 
@@ -52,7 +52,7 @@
     </svg>
 
     <!-- Replaces the mouse pointer -->
-    <img id="hook" src="/elements-2D/hook.png" alt="" draggable="false">
+    <img id="hook" src="/in-need-of-connection/elements-2D/hook.png" alt="" draggable="false">
 
     <script>
         const tail = document.getElementById('tail');
@@ -144,7 +144,7 @@
             startY = e.clientY - posY;
             tail.setPointerCapture(e.pointerId);
 
-            tail.src = '/elements-2D/Start-3d-shrimp-2-2.gif';  // swap image on click
+            tail.src = '/in-need-of-connection/elements-2D/Start-3d-shrimp-2-2.gif';  // swap image on click
             tail.classList.add('dragging');              // bring in front of the shell
 
             introTimers.forEach(clearTimeout);           // stop any lines still waiting
@@ -171,7 +171,7 @@
             if (!dragging) return;
             dragging = false;
             grabText.classList.remove('show');           // h2 only while grabbed
-            tail.src = '/elements-2D/Start-3d-shrimp-3-1.png';  // swap image on release
+            tail.src = '/in-need-of-connection/elements-2D/Start-3d-shrimp-3-1.png';  // swap image on release
             if (tail.hasPointerCapture(e.pointerId)) tail.releasePointerCapture(e.pointerId);
 
             positionTailShadow();
