@@ -67,6 +67,18 @@
     background: #d9d9d9;
   }
   .pic .post-img { display: block; width: 100%; height: 100%; object-fit: cover; }
+
+  /* Hover overlay – only on posts that are links */
+  a.post .pic::after {
+    content: "";
+    position: absolute; inset: 0;
+    background: rgba(0, 0, 0, 0.35) url("/in-need-of-connection/elements-2D/menu/play.png") center / 30% auto no-repeat;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    pointer-events: none;
+  }
+  a.post:hover .pic::after,
+  a.post:focus-visible .pic::after { opacity: 1; }
   .pic .profile {
     position: absolute; left: 8px; top: 6px;
     display: flex; align-items: center; gap: 4px;
@@ -88,10 +100,10 @@
  
 
   .cap {
-    display: flex; justify-content: space-between; align-items: center;
+    display: flex; justify-content: space-between; align-items: flex-start; gap: 10px;
     padding-top: 8px;
   }
-  .heart { width: 16px; height: 16px; fill: none; stroke: #000; stroke-width: 1.5; stroke-linejoin: round; }
+  .heart { flex: none; width: 16px; height: 16px; margin-top: 2px; fill: none; stroke: #000; stroke-width: 1.5; stroke-linejoin: round; }
   .heart:hover, .liked .heart { fill: #000; }
   .post:focus-visible { outline: 3px solid #ea7f4d; outline-offset: 4px; }
 
@@ -123,11 +135,30 @@
     
   }
 
+  .camera {
+    flex: none; 
+    height: 20px; 
+    margin-top: 5px;
+    margin-bottom: 5px;
+    display: grid; place-items: center;
+  }
+  .camera img { 
+    width: 20px; 
+    height: 20px; 
+    object-fit: contain; 
+    display: block; 
+    }
+
   /* Mobile: only the phone content */
   @media (max-width: 760px) {
     body { background: #fff; }
     .center { display: none; }
-    .phone { inset: 0; width: auto; height: auto; padding: 0; border-radius: 0; }
+    .phone { 
+      inset: 0; 
+      width: auto; 
+      height: auto; 
+      padding: 0; 
+      border-radius: 0; }
     .screen {
       border: 0; border-radius: 0;
       padding-left: max(16px, env(safe-area-inset-left, 0px));
@@ -135,7 +166,13 @@
       padding-top: env(safe-area-inset-top, 0px);
     }
     .feed { padding: 20px 0 8px; }
-    .home { margin: 0; height: calc(56px + env(safe-area-inset-bottom, 0px)); padding-bottom: env(safe-area-inset-bottom, 0px); }
+    .home { 
+      margin: 0; 
+      height: calc(56px + env(safe-area-inset-bottom, 0px)); 
+      padding-bottom: env(safe-area-inset-bottom, 0px); }
+    .camera {
+      display: none;
+    }
   }
 </style>
 </head>
@@ -148,6 +185,12 @@
 
 <main class="phone">
   <div class="screen">
+
+     <!-- camera -->
+     <div class="camera"> 
+      <img src="/in-need-of-connection/elements-2D/menu/camera-icon.png" alt="camera">
+    </div>
+
     <nav class="feed">
 
        <!-- Header -->
@@ -156,7 +199,7 @@
       </div>
 
       <!-- POST start -->
-      <a class="post" href="start-6.html">
+      <a class="post" href="start.html">
         <div class="pic">
           <img class="post-img" src="/in-need-of-connection/elements-2D/menu/post-start.png" alt="">
           <div class="profile">
@@ -171,7 +214,7 @@
       </a>
 
       <!-- POST story 1 -->
-      <a class="post" href="story-1-4.html">
+      <a class="post" href="story-1.html">
         <div class="pic">
           <img class="post-img" src="/in-need-of-connection/elements-2D/menu/post-story1.png" alt="">
           <div class="profile">
@@ -186,7 +229,7 @@
       </a>
 
      <!-- POST story 2 -->
-      <a class="post" href="story-2-2.html">
+      <a class="post" href="story-2.html">
         <div class="pic">
           <img class="post-img" src="/in-need-of-connection/elements-2D/menu/post-story2.png" alt="">
           <div class="profile">
@@ -201,7 +244,7 @@
       </a>
 
         <!-- POST story 3 -->
-      <a class="post" href="story-3-4.html">
+      <a class="post" href="story-3.html">
         <div class="pic">
           <img class="post-img" src="/in-need-of-connection/elements-2D/menu/post-story3.png" alt="">
           <div class="profile">
@@ -298,12 +341,151 @@
 
 
 
+         <!-- POST shrimpette -->
+      <div class="post" >
+        <div class="pic">
+          <img class="post-img" src="/in-need-of-connection/elements-2D/menu/shrimpette-post.png" alt="">
+          <div class="profile">
+            <img src="/in-need-of-connection/elements-2D/menu/Shrimpette-pic.png" alt="">
+            <span>Shrimpette</span>
+          </div>
+        </div>
+        <div class="cap">
+          <span><b>Shrimpette </b>Performing at the @LagoonSaloon tonight</span>
+          <svg class="heart" viewBox="0 0 16 16"><path d="M8 14.5 1.6 8A4 4 0 0 1 8 3a4 4 0 0 1 6.4 5z"/></svg>
+        </div>
+      </div>
+
+        <!-- POST shrimpton -->
+        <div class="post" >
+          <div class="pic">
+            <img class="post-img" src="/in-need-of-connection/elements-2D/menu/shrimpton-post.png" alt="">
+            <div class="profile">
+              <img src="/in-need-of-connection/elements-2D/menu/Shrimpton-pic.png" alt="">
+              <span>Shrimpton</span>
+            </div>
+          </div>
+          <div class="cap">
+            <span><b>Shrimpton </b>Treating myself to a spa day at the hot pool</span>
+            <svg class="heart" viewBox="0 0 16 16"><path d="M8 14.5 1.6 8A4 4 0 0 1 8 3a4 4 0 0 1 6.4 5z"/></svg>
+          </div>
+        </div>
+
+         <!-- POST skybus -->
+         <div class="post" >
+          <div class="pic">
+            <img class="post-img" src="/in-need-of-connection/elements-2D/menu/skybus-post.png" alt="">
+            <div class="profile">
+              <img src="/in-need-of-connection/elements-2D/menu/SkyBus.png" alt="">
+              <span>SkyBus</span>
+            </div>
+          </div>
+          <div class="cap">
+            <span><b>SkyBus </b>From sea to lake in under 5 hours</span>
+            <svg class="heart" viewBox="0 0 16 16"><path d="M8 14.5 1.6 8A4 4 0 0 1 8 3a4 4 0 0 1 6.4 5z"/></svg>
+          </div>
+        </div>
+
+           <!-- POST lagoon saloon -->
+         <div class="post" >
+          <div class="pic">
+            <img class="post-img" src="/in-need-of-connection/elements-2D/menu/lagoonsaloon-post.png" alt="">
+            <div class="profile">
+              <img src="/in-need-of-connection/elements-2D/menu/LagoonSaloon.png" alt="">
+              <span>LagoonSaloon</span>
+            </div>
+          </div>
+          <div class="cap">
+            <span><b>LagoonSaloon </b>Try our new mixed seacucumber drinks</span>
+            <svg class="heart" viewBox="0 0 16 16"><path d="M8 14.5 1.6 8A4 4 0 0 1 8 3a4 4 0 0 1 6.4 5z"/></svg>
+          </div>
+        </div>
+
+       <!-- POST Shrimplin and Shrimpette -->
+       <div class="post" >
+        <div class="pic">
+          <img class="post-img" src="/in-need-of-connection/elements-2D/menu/shrimplin-ette-post.png" alt="">
+          <div class="profile">
+            <img src="/in-need-of-connection/elements-2D/menu/Shrimplin-pic.png" alt="">
+            <span>Shrimplin</span>
+          </div>
+        </div>
+        <div class="cap">
+          <span><b>Shrimplin </b>Saw the new Sardinald the Brave movie with @Shrimpette</span>
+          <svg class="heart" viewBox="0 0 16 16"><path d="M8 14.5 1.6 8A4 4 0 0 1 8 3a4 4 0 0 1 6.4 5z"/></svg>
+        </div>
+      </div>
+
+      <!-- POST Gullermo -->
+       <div class="post" >
+        <div class="pic">
+          <img class="post-img" src="/in-need-of-connection/elements-2D/menu/gullermo-post.png" alt="">
+          <div class="profile">
+            <img src="/in-need-of-connection/elements-2D/menu/Gullermo-pic.png" alt="">
+            <span>Gullermo</span>
+          </div>
+        </div>
+        <div class="cap">
+          <span><b>Gullermo </b>Got a big catch in todays bread hunt</span>
+          <svg class="heart" viewBox="0 0 16 16"><path d="M8 14.5 1.6 8A4 4 0 0 1 8 3a4 4 0 0 1 6.4 5z"/></svg>
+        </div>
+      </div>
+
+      <!-- POST Bossman -->
+      <div class="post" >
+        <div class="pic">
+          <img class="post-img" src="/in-need-of-connection/elements-2D/menu/Bossman-post.png" alt="">
+          <div class="profile">
+            <img src="/in-need-of-connection/elements-2D/menu/Bossman.png" alt="">
+            <span>TheBossman</span>
+          </div>
+        </div>
+        <div class="cap">
+          <span><b>TheBossman </b>Day 21 of photographing sleeping regulars. The bar is not your bed, go home. 
+          <b>Shrimplin </b>Is this allowed?
+          </span>
+          <svg class="heart" viewBox="0 0 16 16"><path d="M8 14.5 1.6 8A4 4 0 0 1 8 3a4 4 0 0 1 6.4 5z"/></svg>
+        </div>
+      </div>
+
+      <!-- POST Sad Fish -->
+      <div class="post" >
+        <div class="pic">
+          <img class="post-img" src="/in-need-of-connection/elements-2D/menu/sadfish-post.png" alt="">
+          <div class="profile">
+            <img src="/in-need-of-connection/elements-2D/menu/Sadfish-pic.png" alt="">
+            <span>SadFish</span>
+          </div>
+        </div>
+        <div class="cap">
+          <span><b>SadFish </b>Fishkind we shall no longer be opressed by the evil coporation polluting our home.</span>
+          <svg class="heart" viewBox="0 0 16 16"><path d="M8 14.5 1.6 8A4 4 0 0 1 8 3a4 4 0 0 1 6.4 5z"/></svg>
+        </div>
+      </div>
+
+       <!-- POST shrimp gourp -->
+       <a class="post" href="end.html">
+        <div class="pic">
+          <img class="post-img" src="/in-need-of-connection/elements-2D/menu/group-post.png" alt="">
+          <div class="profile">
+            <img src="/in-need-of-connection/elements-2D/menu/Shrimpton-pic.png" alt="">
+            <span>Shrimpton</span>
+          </div>
+        </div>
+        <div class="cap">
+          <span><b>Shrimpton </b>All of the best Shrimpgroup is here @shrimplin @shrimp @shrimpette </span>
+          <svg class="heart" viewBox="0 0 16 16"><path d="M8 14.5 1.6 8A4 4 0 0 1 8 3a4 4 0 0 1 6.4 5z"/></svg>
+        </div>
+      </a>
+
+
+
 
     </nav>
     
 
     <div class="home" onclick="topFunction()" title="Go to top">
-      <img src="/elements-2D/menu/home-shell.png" alt="Home">
+      <img src="/in-need-of-connection/elements-2D/menu/home-shell.png" alt="Home">
   </div>
  
   </div>

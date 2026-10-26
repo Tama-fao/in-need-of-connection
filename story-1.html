@@ -7,7 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Single+Day&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="story-1-4.css">
+    <link rel="stylesheet" href="story-1.css">
 </head>
 <body>
 
@@ -45,7 +45,7 @@
 
   <div id="corner-icons">
   <a id="menu-link" href="menu.html">
-    <img id="menu" src="/elements-2D/menu-icon-2.png" alt="Menu">
+    <img id="menu" src="/in-need-of-connection/elements-2D/menu-icon-2.png" alt="Menu">
   </a>
 
   <div id="hint">
@@ -53,7 +53,7 @@
     <div id="hint-popup" role="tooltip">
       Try changing the size of the room and see what happens!
     </div>
-    <img id="hint-img" src="/elements-2D/hint-2.png" alt="hint">
+    <img id="hint-img" src="/in-need-of-connection/elements-2D/hint-2.png" alt="hint">
   </div>
   </div>
 
@@ -63,8 +63,8 @@
   const message = document.getElementById('message');
 
   const shrimpMain = document.getElementById('shrimp-main');
-  const SHRIMP_ANIMATED = '/elements-2D/story-1/shrimp-main.gif';
-  const SHRIMP_STILL    = '/elements-2D/story-1/shrimp-happy.gif';
+  const SHRIMP_ANIMATED = '/in-need-of-connection/elements-2D/story-1/shrimp-main.gif';
+  const SHRIMP_STILL    = '/in-need-of-connection/elements-2D/story-1/shrimp-happy.gif';
   new Image().src = SHRIMP_STILL; // preload so the swap doesn't flicker
 
   const MESSAGES = {
@@ -128,7 +128,7 @@
 
       // 5 s after the outro appears, go to the next story
       nextTimer = setTimeout(() => {
-        window.location.href = 'story-2-2.html';
+        window.location.href = 'story-2.html';
       }, NEXT_STORY_DELAY);
     }, OUTRO_DELAY);
   }

@@ -1,0 +1,281 @@
+body{
+    background: url('/in-need-of-connection/elements-2D/backgrounds/start-paint.png') no-repeat center center fixed;
+    }
+
+/* Adjust these to match your artwork */
+:root {
+    --logo-w: clamp(90px, 14vw, 220px);
+    --shell-w: clamp(140px, 22vw, 360px);
+    --tail-w: clamp(100px, 18vw, 250px);
+    --menu-w: clamp(48px, 3vw, 90px);
+    --hook-w: 60px;
+    --edge: clamp(12px, 2vw, 132px);
+    --hint-w: clamp(48px, 7vw, 90px);
+    --char-w: clamp(110px, 20vw, 320px);   /* width of each shrimp */
+    --char-h: clamp(110px, 20vw, 320px);   /* approx. height, used to place the intro above them */
+   
+
+}
+
+html, body {
+    height: 100%;
+    margin: 0;
+    overflow: hidden;
+}
+
+
+h1 {
+    font-family: 'Futura', sans-serif;
+    font-size: 1.5rem;
+    color: #000;
+    text-align: left;
+    font-weight: 500;
+    
+}
+
+@media screen and (max-width: 768px) {
+    h1 {
+        font-size: 0.8rem;
+    }
+    
+}
+
+h2 {
+    font-family: 'Noteworthy', cursive;
+    font-size: 1.5rem;
+    color: #000;
+    text-align: left;
+    
+}
+
+/* Intro text: centered above the shrimp, fades in 2s after load (see script in end.html) */
+#intro {
+    position: fixed;
+    left: 50%;
+    top: 60%;
+    transform: translate(-50%, calc(-50% - var(--char-h) / 2 - 1.5em));
+    width: 80vw;
+    max-width: 700px;
+    pointer-events: none;
+    z-index: 20;             /* on top of the shrimp */
+    transition: opacity 0.8s ease;
+}
+
+#intro h1 {
+    text-align: center;
+    margin: 0;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: opacity 0.8s ease, transform 0.8s ease;
+}
+
+#intro h1.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Fades everything out when the shrimp is grabbed */
+#intro.hidden {
+    opacity: 0;
+}
+
+
+
+
+#shell-area::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    bottom: 0;
+    width: 350px;            /* shadow width: adjust to your shrimp */
+    height: 70px;            /* shadow height: keep it flat for an oval */
+    transform: translate(-50%, -40%); /* centers it on the bottom edge of the image */
+    background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.75) 0%, rgba(0, 0, 0, 0) 70%);
+    z-index: -1;
+    pointer-events: none;
+}
+
+#tail-shadow {
+    position: fixed;
+    left: -20px;
+    top: -50px;
+    width: 200px;
+    height: 50px;
+    background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.5) 0%, rgba(0, 0, 0, 0) 70%);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    z-index: 1;
+}
+
+#tail-shadow.show {
+    opacity: 1;
+}
+
+
+
+
+/* Shell + tail: top right */
+#shell-area {
+    position: fixed;
+    top: var(--edge);
+    right: 10vw;
+    width: var(--shell-w);
+}
+
+#shell {
+    position: relative;
+    z-index: 2;              /* in front of the tail */
+    display: block;
+    width: 100%;
+    height: auto;
+    pointer-events: none;    /* clicks fall through to the visible tail */
+}
+
+
+
+
+
+/* Main shrimp + Shrimpton: centered on screen, each with a ground shadow */
+#characters {
+    position: fixed;
+    top: 65%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    flex-direction: row;
+    align-items: flex-end;
+    justify-content: center;
+    gap: clamp(16px, 4vw, 70px);
+    z-index: 5;
+}
+
+.character {
+    position: relative;
+    width: var(--char-w);
+}
+
+.character img {
+    display: block;
+    width: 100%;
+    height: auto;
+    position: relative;
+    z-index: 1;
+    user-select: none;
+}
+
+/* Oval shadow under each character */
+.character::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    bottom: 0;
+    width: 50%;
+    height: 18%;
+    transform: translate(-52%, 9%);
+    background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.6) 0%, rgba(0, 0, 0, 0) 70%);
+    z-index: 0;
+    pointer-events: none;
+}
+
+/* Seagulls: flush with the top edge of the screen */
+.gull {
+    position: fixed;
+    top: 0;
+    width: 400px;
+    height: auto;
+    margin: 0;
+    z-index: 4;
+    user-select: none;
+    pointer-events: none;
+}
+
+#gull1 { 
+    left: 16vw; 
+    -webkit-transform: scaleX(-1);
+    transform: scaleX(-1);
+}
+#gull2 { 
+    right: 31vw; 
+}
+
+/* Fade to white before the next story */
+.fade-overlay {
+    position: fixed;
+    inset: 0;
+    background: #ffffff;
+    opacity: 0;
+    pointer-events: none;
+    z-index: 10000;          /* above the hook and line */
+    transition: opacity 1.5s ease;
+}
+
+.fade-overlay.show {
+    opacity: 1;
+}
+
+/* Menu -------------------------- */
+
+
+#corner-icons {
+    position: fixed;
+    top: var(--edge);
+    left: var(--edge);
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 30px;
+    z-index: 10;
+}
+
+#menu-link {
+    display: block;
+}
+
+#menu {
+    display: block;
+    width: var(--menu-w);
+    height: auto;
+}
+
+
+
+/* ---------- Mobile ---------- */
+@media screen and (max-width: 768px) {
+
+
+    /* Only one seagull on mobile */
+    #gull2 {
+        display: none;
+    }
+
+    #gull1 {
+        left: 50%;
+        transform: translateX(-50%);
+    }
+
+        /* Menu -------------------------- */
+
+
+    #corner-icons {
+        position: fixed;
+        top: var(--edge);
+        left: var(--edge);
+        display: flex;
+        flex-direction: row;
+        align-items: flex-start;
+        gap: 30px;
+        z-index: 30;
+    }
+    
+       
+    
+        #menu {
+        
+        width: 40px;
+     
+    }
+    
+
+ 
+}

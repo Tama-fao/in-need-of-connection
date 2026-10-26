@@ -14,7 +14,7 @@
   html, body { margin: 0; height: 100%; overflow: hidden; background: var(--sky-bottom); }
   body {
     /*background: linear-gradient(180deg, var(--sky-top) 0%, var(--sky-bottom) 100%);*/
-    background: url('/in-need-of-connection/elements-2D/background/seafloor-paint-3.png') no-repeat center bottom fixed;
+    background: url('/in-need-of-connection/elements-2D/backgrounds/seafloor-paint-3.png') no-repeat center bottom fixed;
      font-family:  'Single Day', cursive;
     color: var(--ink);
   }
@@ -218,5 +218,12 @@
     bottom: 100%;
     border: 8px solid transparent;
     border-bottom-color: #000;
+    }
+
+
+    #thought {
+        top: 28%;
+        right: 15%;
+      
     }
 }

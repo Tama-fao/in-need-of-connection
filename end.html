@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ending</title>
+    <link rel="stylesheet" href="end.css">
+</head>
+<body>
+ 
+    <div id="intro">
+        <h1>Ah look at all these connections</h1>
+    </div>
+
+    <div id="characters">
+        <div class="character">
+            <img id="main-shrimp" src="/in-need-of-connection/elements-2D/end/end-mainshrimp.gif" alt="Shrimp" draggable="false">
+        </div>
+        <div class="character">
+            <img id="shrimpton" src="/in-need-of-connection/elements-2D/end/end-shrimpton.gif" alt="Shrimpton" draggable="false">
+        </div>
+    </div>
+
+    <img id="gull1" class="gull" src="/in-need-of-connection/elements-2D/end/end-gull.gif" alt="Seagull1" draggable="false">
+    <img id="gull2" class="gull" src="/in-need-of-connection/elements-2D/end/end-gull.gif" alt="Seagull2" draggable="false">
+
+    <div id="shell-area">
+        <img id="shell" src="/in-need-of-connection/elements-2D/Start-3d-shell-2.png" alt="Shell" >
+    </div>
+
+    <div id="corner-icons">
+        <a id="menu-link" href="menu.html">
+          <img id="menu" src="/in-need-of-connection/elements-2D/menu-icon-2.png" alt="Menu">
+        </a>
+     </div>
+
+    <script>
+        // Intro text fades in 2 seconds after the page has loaded
+        window.addEventListener('load', function () {
+            setTimeout(function () {
+                document.querySelectorAll('#intro h1').forEach(function (h) {
+                    h.classList.add('visible');
+                });
+            }, 2000);
+        });
+    </script>
+</body>
+</html>
