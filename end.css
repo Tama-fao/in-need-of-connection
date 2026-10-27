@@ -250,8 +250,7 @@ h2 {
     }
 
     #gull1 {
-        left: 50%;
-        transform: translateX(-50%);
+        display: none;
     }
 
         /* Menu -------------------------- */
