@@ -39,11 +39,12 @@ h2 {
 }
 
 h3 { 
-    font-size: 1rem; 
+    font-size: 1.4rem; 
     text-align: left; 
-    line-height: 1.2rem;
+    line-height: 1.1rem;
     font-weight: 400;
-    font-family: 'Rock Salt', cursive;
+    text-transform: uppercase;
+    font-family: 'Single Day', sans-serif;
     color: #000;
     margin: 0; 
 }
