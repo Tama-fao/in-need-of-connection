@@ -82,6 +82,20 @@
         pointer-events: none;
     }
 
+    /* Fade to white before the next story */
+.fade-overlay {
+    position: fixed;
+    inset: 0;
+    background: #ffffff;
+    opacity: 0;
+    pointer-events: none;
+    z-index: 100;
+    transition: opacity 1.5s ease;
+}
+
+.fade-overlay.show {
+    opacity: 1;
+}
 
 /* Menu -------------------------- */
 

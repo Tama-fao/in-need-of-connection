@@ -407,7 +407,14 @@ function showEnding() {
   setTimeout(() => document.getElementById('endRight').classList.add('show'), 1700);   // right shrimp speaks first
   setTimeout(() => document.getElementById('endLeft').classList.add('show'), 3300);    // left shrimp answers
   document.getElementById('end').setAttribute('aria-hidden', 'false');
+
+
+  // 5 s after the last bubble appears: fade to white, then go to the next story
+  const END_BUBBLES_DONE_MS = 3300;
+  setTimeout(() => fadeOverlay.classList.add('show'), END_BUBBLES_DONE_MS + NEXT_STORY_DELAY - FADE_DURATION);
+  setTimeout(() => { window.location.href = 'end.html'; }, END_BUBBLES_DONE_MS + NEXT_STORY_DELAY);
 }
+
 function onFriend(hit) {
   if (!endTimer) endTimer = setTimeout(showEnding, ENDING_DELAY_MS);
   react('p:' + hit.cfg.root, hit.root, [{ re: FRIEND_FIND, fb: bounceFb }], 1500);
