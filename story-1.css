@@ -302,6 +302,11 @@ h2 {
     border-bottom-color: #000;
 }
 
+
+.shrimp:nth-child(3) {
+    z-index: 10;
+}
+
 /* ---------- Mobile ---------- */
 @media screen and (max-width: 768px) {
 
@@ -367,6 +372,13 @@ h2 {
         bottom: 100%;
         border: 8px solid transparent;
         border-bottom-color: #000;
+        }
+
+        .message {
+            margin-bottom: 10px;
+            font-family:  'Single Day', sans-serif;
+            font-size: 18px;
+         
         }
 
  
