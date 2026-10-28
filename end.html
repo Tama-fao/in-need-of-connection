@@ -10,6 +10,8 @@
  
     <div id="intro">
         <h1>Ah look at all these connections</h1>
+        <h1>maybe there will be more in the future</h1>
+
     </div>
 
     <div id="characters">
@@ -35,13 +37,15 @@
      </div>
 
     <script>
-        // Intro text fades in 2 seconds after the page has loaded
-        window.addEventListener('load', function () {
-            setTimeout(function () {
-                document.querySelectorAll('#intro h1').forEach(function (h) {
+           // Intro text fades in 2 seconds after the page has loaded
+           window.addEventListener('load', function () {
+            var lines = document.querySelectorAll('#intro h1');
+            // First line after 2s, second line 1.5s after the first
+            lines.forEach(function (h, i) {
+                setTimeout(function () {
                     h.classList.add('visible');
-                });
-            }, 2000);
+                }, 1500 + i * 1500);
+            });
         });
     </script>
 </body>
