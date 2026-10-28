@@ -274,6 +274,20 @@ h2 {
         width: 40px;
      
     }
+
+
+    #shell-area::after {
+        content: '';
+        position: absolute;
+        left: 35%;
+        bottom: 0;
+        width: 200px;
+        height: 70px;
+        transform: translate(-40%, 2%);
+        background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.75) 0%, rgba(0, 0, 0, 0) 70%);
+        z-index: -1;
+        pointer-events: none;
+    }
     
 
  
