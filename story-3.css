@@ -1,5 +1,4 @@
-
-  :root {
+:root {
     --sky-top: #bfeaf5;
     --sky-bottom: #7cc4dc;
     --ink: #1d2a33;
@@ -14,7 +13,7 @@
   html, body { margin: 0; height: 100%; overflow: hidden; background: var(--sky-bottom); }
   body {
     /*background: linear-gradient(180deg, var(--sky-top) 0%, var(--sky-bottom) 100%);*/
-    background: url('/in-need-of-connection/elements-2D/backgrounds/seafloor-paint-3.png') no-repeat center bottom fixed;
+    background: url('/elements-2D/backgrounds/seafloor-paint-3.png') no-repeat center bottom fixed;
      font-family:  'Single Day', cursive;
     color: var(--ink);
   }
@@ -82,7 +81,8 @@
         pointer-events: none;
     }
 
-    /* Fade to white before the next story */
+
+/* Fade to white before the next story */
 .fade-overlay {
     position: fixed;
     inset: 0;
@@ -236,7 +236,7 @@
 
 
     #thought {
-        top: 28%;
+        top: 23%;
         right: 15%;
       
     }

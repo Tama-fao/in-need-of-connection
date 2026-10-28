@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Single+Day&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="story-3.css">
+<link rel="stylesheet" href="story-3-4.css">
 </head>
 <body>
 <canvas id="c"></canvas>
@@ -24,6 +24,9 @@
   </div>
   <img src="/in-need-of-connection/elements-2D/happyend3.png" alt="The two shrimp, happy together">
 </div>
+
+<!-- White overlay that fades in before jumping to the next story -->
+<div class="fade-overlay" id="fade-overlay"></div>
 
 <div id="corner-icons">
   <a id="menu-link" href="menu.html">
@@ -73,6 +76,9 @@ const PASSERS = [
   { root: 'passer8',       hover: 'maybe?', click: 'I am not local, have no directions' },
   { root: 'passer9',       hover: 'maybe?', click: 'What you selling?' },
 ];
+const NEXT_STORY_DELAY = 5000;    // ms after the last ending bubble appears before linking on
+const FADE_DURATION    = 1500;    // fade to white at the end of that wait (keep in sync with the CSS transition)
+const fadeOverlay = document.getElementById('fade-overlay');
 const SAY_DURATION_MS = 2800;
 const ENDING_DELAY_MS = 1500;     // after the friend is clicked: wait this long, then switch to the happy-end picture
 const SHADOW_OPACITY  = 0.14;      // the round shadow under each box (was 0.4 in the file) - lower = more transparent
@@ -81,7 +87,7 @@ const SHOCK_MS        = 1600;      // main-shrimp-shock is slowed down to last t
 
 /* Clips that only play on click. Everything else in the file loops.
    (match is on the clip name; spelling variants are accepted) */
-const ANGY      = /angy|angry/i;
+const ANGY      = /passerby-angy/i;
 const SQUIZE    = /squ[ie]+[sz]e/i;
 const FRIEND_FIND = /friend.?find/i;
 const FRIEND_WALK = /friend.?walk/i;     // the friend's looping walk (replaces whatever else loops on the friend's rig)
@@ -408,13 +414,11 @@ function showEnding() {
   setTimeout(() => document.getElementById('endLeft').classList.add('show'), 3300);    // left shrimp answers
   document.getElementById('end').setAttribute('aria-hidden', 'false');
 
-
   // 5 s after the last bubble appears: fade to white, then go to the next story
   const END_BUBBLES_DONE_MS = 3300;
   setTimeout(() => fadeOverlay.classList.add('show'), END_BUBBLES_DONE_MS + NEXT_STORY_DELAY - FADE_DURATION);
   setTimeout(() => { window.location.href = 'end.html'; }, END_BUBBLES_DONE_MS + NEXT_STORY_DELAY);
 }
-
 function onFriend(hit) {
   if (!endTimer) endTimer = setTimeout(showEnding, ENDING_DELAY_MS);
   react('p:' + hit.cfg.root, hit.root, [{ re: FRIEND_FIND, fb: bounceFb }], 1500);
