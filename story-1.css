@@ -38,7 +38,7 @@ h1 {
 }
 
 h2 {
-    font-family:  'Single Day', cursive;
+    font-family:  'Single Day', sans-serif;
     font-size: 1.5rem;
     color: #ffffff;
     text-align: left;
@@ -302,9 +302,18 @@ h2 {
     border-bottom-color: #000;
 }
 
-
 .shrimp:nth-child(3) {
     z-index: 10;
+}
+
+.message-wrap {
+    position: relative;
+    display: flex;
+    justify-content: center;
+}
+
+#hint-img-mobile {
+    display: none;
 }
 
 /* ---------- Mobile ---------- */
@@ -374,6 +383,7 @@ h2 {
         border-bottom-color: #000;
         }
 
+
         .message {
             margin-bottom: 10px;
             font-family:  'Single Day', sans-serif;
@@ -381,5 +391,23 @@ h2 {
          
         }
 
+        /* Rotate icon: small, centered above the message, only after the hint is clicked */
+        #hint-img-mobile {
+            display: block;
+            position: absolute;
+            left: 50%;
+            top: 100%;
+            height: 60px;
+            width: auto;
+            margin-bottom: 2px;
+            transform: translateX(-50%);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.25s ease;
+        }
+
+        #hint-img-mobile.show {
+            opacity: 1;
+        }
  
 }

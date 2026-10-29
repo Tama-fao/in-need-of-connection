@@ -24,7 +24,11 @@
       </div>
     </div>
 
-    <div class="message" id="message"></div>
+    <div class="message-wrap">
+      <!-- Mobile only: shown above the message when the hint is clicked -->
+      <img id="hint-img-mobile" src="/in-need-of-connection/elements-2D/rotate.png" alt="rotate your phone">
+      <div class="message" id="message"></div>
+    </div>
 
     <div class="shrimps">
       <div class="shrimp"><img src="/in-need-of-connection/elements-2D/story-1/shrimp-crowd.gif" alt=""></div>
@@ -128,7 +132,7 @@
 
       // 5 s after the outro appears, go to the next story
       nextTimer = setTimeout(() => {
-        window.location.href = 'story-2.html';
+        window.location.href = 'story-2-2.html';
       }, NEXT_STORY_DELAY);
     }, OUTRO_DELAY);
   }
@@ -207,14 +211,19 @@
   /* ---------- Hint pop-up ---------- */
   const hintImg = document.getElementById('hint-img');
   const hintPopup = document.getElementById('hint-popup');
+  const rotateHint = document.getElementById('hint-img-mobile');
 
   hintImg.addEventListener('click', (e) => {
     e.stopPropagation();
     hintPopup.classList.toggle('show');
+    rotateHint.classList.toggle('show');   // only visible on mobile (see CSS)
   });
 
-  // Clicking anywhere else closes the pop-up
-  document.addEventListener('click', () => hintPopup.classList.remove('show'));
+  // Clicking anywhere else closes the pop-up and the rotate icon
+  document.addEventListener('click', () => {
+    hintPopup.classList.remove('show');
+    rotateHint.classList.remove('show');
+  });
 </script>
 
 </body>

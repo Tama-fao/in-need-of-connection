@@ -7,9 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Single+Day&display=swap" rel="stylesheet">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Rock+Salt&display=swap" rel="stylesheet">
+   
     <link rel="stylesheet" href="story-2.css">
 </head>
 <body>
@@ -42,6 +40,7 @@
             <img class="gull gull-normal" id="seagull-left" src="/in-need-of-connection/elements-2D/story-2-1/seagull-left-talk.gif" alt="seagull left">
             <img class="gull shook-img" id="seagull-left-shook" src="/in-need-of-connection/elements-2D/story-2-1/seagull-left-shook.png" alt="left shook">
             <img class="gull smile-img" id="seagull-left-smile" src="/in-need-of-connection/elements-2D/story-2-1/seagull-left-smile.png" alt="left smile">
+            <img class="side-plate" src="/in-need-of-connection/elements-2D/story-2-1/plate1.png" alt="">
 
         </div>
 
@@ -62,6 +61,7 @@
             <img class="gull gull-normal" id="seagull-right" src="/in-need-of-connection/elements-2D/story-2-1/seagull-talk-right.gif" alt="seagull right">
             <img class="gull shook-img" id="seagull-right-shook" src="/in-need-of-connection/elements-2D/story-2-1/seagull-right-shook.png" alt="right shook">
             <img class="gull smile-img" id="seagull-right-smile" src="/in-need-of-connection/elements-2D/story-2-1/seagull-right-smile.png" alt="right smile">
+            <img class="side-plate" src="/in-need-of-connection/elements-2D/story-2-1/plate1.png" alt="">
         </div>
     </section>
 
@@ -133,6 +133,8 @@ const AFTER_DELAY   = 3000;  // after-talk bubble appears this long after the bi
 const OUTRO_DELAY   = 7000;  // outro appears this long after the interruption (ms)
 const NEXT_STORY_DELAY = 5000; // next story loads this long after the outro appears (ms)
 const FADE_DURATION    = 1500; // fade to white at the end of that wait (keep in sync with the CSS transition)
+const START_SCALE      = 0.6;  // bubble size on the first click
+const GROW_PER_PRESS   = 0.1;  // extra bubble scale added with every click in the mash window
 const fadeOverlay = document.getElementById('fade-overlay');
 
 let lineIndex = 0;
@@ -217,7 +219,7 @@ gullRight.classList.remove('talking');
 
         // 5 s after the outro appears: fade to white, then go to the next story
         setTimeout(() => fadeOverlay.classList.add('show'), NEXT_STORY_DELAY - FADE_DURATION);
-        setTimeout(() => { window.location.href = 'story-3.html'; }, NEXT_STORY_DELAY);
+        setTimeout(() => { window.location.href = 'story-3-4.html'; }, NEXT_STORY_DELAY);
     }, OUTRO_DELAY);
 }
 
@@ -241,10 +243,14 @@ talkBtn.addEventListener('click', () => {
     // bubbles only grow while mashing
     if (wanted > level) setLevel(wanted);
 
+    // every single click makes the bubble a bit bigger
+    shrimpWrap.style.setProperty('--grow', (START_SCALE + (count - 1) * GROW_PER_PRESS).toFixed(2));
+
     clearTimeout(hideTimer);
     hideTimer = setTimeout(() => {
         presses = [];
         setLevel(0);
+        shrimpWrap.style.setProperty('--grow', START_SCALE);
     }, SMALL_HIDE);
 });
 

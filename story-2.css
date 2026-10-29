@@ -33,7 +33,7 @@ h1 {
 h2 { 
     font-size: 1.5rem; 
     text-align: left; 
-    font-family: 'Single Day', cursive;
+    font-family: 'Single Day', sans-serif;
     color: #000;
     margin: 0;
 }
@@ -183,6 +183,26 @@ h3 {
 .shrimp-bubble.show {
     opacity: 1;
     transform: translate(-50%, 0) scale(1);
+}
+
+/* Only the small and mid bubbles grow with each click */
+#small-talk.show,
+#mid-talk.show {
+    transform: translate(-50%, 0) scale(var(--grow, 0.6));
+}
+
+/* Plates in front of the seagulls (desktop only, no buttons) */
+.side-plate {
+    display: block;
+    position: absolute;
+    left: 50%;
+    top: calc(100% + 2.5vh);
+    transform: translateX(-50%);
+    max-width: 90%;
+    max-height: 10vh;
+    width: auto;
+    height: auto;
+    pointer-events: none;
 }
 
 .shrimp-bubble h2 { text-align: center; }
@@ -413,6 +433,8 @@ h3 {
 
 /* ---------- Mobile ---------- */
 @media screen and (max-width: 768px) {
+
+    .side-plate { display: none; }
 
     /* Seagull speech bubbles: smaller text, thinner border */
     h3 {
