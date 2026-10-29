@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Story 1</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Single+Day&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="story-1-re.css">
+</head>
+<body>
+
+  <div class="container">
+
+    <!-- Intro and outro share the same spot above the message -->
+    <div class="text-area">
+      <div id="intro" class="story-text">
+        <h1>While the shrimp is an individualistic creature the swarm gives the shrimp strength in numbers and a healthy social life</h1>
+      </div>
+
+      <div id="outro" class="story-text">
+        <h1>Truly a fickle creature</h1>
+      </div>
+    </div>
+
+    <div class="message-wrap">
+      <div class="message" id="message"></div>
+    </div>
+
+    <div class="shrimps">
+      <div class="shrimp"><img src="/in-need-of-connection/elements-2D/story-1/shrimp-crowd.gif" alt=""></div>
+      <div class="shrimp"><img src="/in-need-of-connection/elements-2D/story-1/shrimp-left.gif" alt=""></div>
+      <div class="shrimp"><img id="shrimp-main" src="/in-need-of-connection/elements-2D/story-1/shrimp-main.gif" alt=""></div>
+      <div class="shrimp"><img src="/in-need-of-connection/elements-2D/story-1/shrimp-right.gif" alt=""></div>
+      <div class="shrimp"><img src="/in-need-of-connection/elements-2D/story-1/shrimp-crowd.gif" alt=""></div>
+    </div>
+  </div>
+
+
+  <!-- White overlay that fades in before jumping to the next story -->
+  <div class="fade-overlay" id="fade-overlay"></div>
+
+  <!-- Room size slider: replaces resizing the browser window -->
+  <div class="room-control" id="room-control">
+    <span class="room-label">Room size</span>
+    <input type="range" id="room-slider" min="0" max="100" value="100" step="1" aria-label="Room size">
+  </div>
+
+  <div id="corner-icons">
+  <a id="menu-link" href="menu.html">
+    <img id="menu" src="/in-need-of-connection/elements-2D/menu-icon-2.png" alt="Menu">
+  </a>
+
+  <div id="hint">
+    <!-- Pop-up with the hint text, appears above the hint image when clicked -->
+    <div id="hint-popup" role="tooltip">
+      Try changing the size of the room and see what happens!
+    </div>
+    <img id="hint-img" src="/in-need-of-connection/elements-2D/hint-2.png" alt="hint">
+  </div>
+  </div>
+
+<script>
+  const intro   = document.getElementById('intro');
+  const outro   = document.getElementById('outro');
+  const message = document.getElementById('message');
+
+  const shrimpMain = document.getElementById('shrimp-main');
+  const SHRIMP_ANIMATED = '/in-need-of-connection/elements-2D/story-1/shrimp-main.gif';
+  const SHRIMP_STILL    = '/in-need-of-connection/elements-2D/story-1/shrimp-happy.gif';
+  new Image().src = SHRIMP_STILL; // preload so the swap doesn't flicker
+
+  const MESSAGES = {
+    tight:  'I have no space! I feel suffocated',
+    medium: 'Mmmh.. This is actually quite alright',
+    wide:   'I have to much space! I feel lonely'
+  };
+
+  const OUTRO_DELAY = 3000; // ms after the "alright" message appears
+
+  // Room size comes from the slider (0 = tiny room, 100 = huge room)
+  const roomSlider  = document.getElementById('room-slider');
+  const roomControl = document.getElementById('room-control');
+  const shrimpsEl   = document.querySelector('.shrimps');
+
+  const TIGHT_MAX  = 35;  // slider value below this  -> "tight"
+  const MEDIUM_MAX = 70;  // slider value up to this  -> "medium", above -> "wide"
+  const ROOM_MIN_PCT = 25; // room width (in % of the screen) at slider = 0
+
+  function getState() {
+    const v = Number(roomSlider.value);
+    if (v < TIGHT_MAX)   return 'tight';
+    if (v <= MEDIUM_MAX) return 'medium';
+    return 'wide';
+  }
+
+  // The shrimps are spread over a "room" whose width follows the slider
+  function applyRoomSize() {
+    const v = Number(roomSlider.value);
+    const pct = ROOM_MIN_PCT + (v / 100) * (100 - ROOM_MIN_PCT);
+    shrimpsEl.style.width = pct + '%';
+  }
+
+  // On narrow screens, shrink the shrimps so that with the slider fully to the
+  // right they have clear space between them (5 shrimps share the screen width)
+  const FIT_FACTOR = 2.0; // share of its column a shrimp may fill when the room is biggest
+  function fitShrimps() {
+    if (window.innerWidth > 768) {
+      document.documentElement.style.removeProperty('--shrimp-h');
+      return;
+    }
+    const ratio = (shrimpMain.naturalWidth / shrimpMain.naturalHeight) || 1;
+    const colW = window.innerWidth / 5;
+    const h = Math.min(300, (colW * FIT_FACTOR) / ratio);
+    document.documentElement.style.setProperty('--shrimp-h', Math.round(h) + 'px');
+  }
+  fitShrimps();
+  shrimpMain.addEventListener('load', fitShrimps);
+  window.addEventListener('resize', fitShrimps);
+
+  let currentState = null;
+  let outroTimer = null;
+  let introGone = false;
+
+  const MESSAGE_DELAY = 2000;   // ms the intro is shown alone before messages fade in
+  const BLINK_INTERVAL = 10000; // ms between edge blinks (first one after 10 s)
+
+  const NEXT_STORY_DELAY = 5000; // ms after the outro appears before linking on
+  const FADE_DURATION = 1500;    // ms of fade to white (keep in sync with the CSS transition)
+  const fadeOverlay = document.getElementById('fade-overlay');
+  let nextTimer = null;
+  let fadeTimer = null;
+
+  let messageShown = false;
+  let outroReached = false;
+
+  function scheduleOutro() {
+    clearTimeout(outroTimer);
+    if (currentState !== 'medium' || !messageShown) return;
+    outroTimer = setTimeout(() => {
+      outroReached = true;                   // stops the edge blinking for good
+      stopBlinking();
+      intro.classList.remove('visible');     // make room for the outro
+      outro.classList.add('visible');
+      shrimpMain.src = SHRIMP_STILL;         // main shrimp holds still
+
+      // fade to white so it is fully white right when we jump
+      fadeTimer = setTimeout(() => {
+        fadeOverlay.classList.add('show');
+      }, NEXT_STORY_DELAY - FADE_DURATION);
+
+      // 5 s after the outro appears, go to the next story
+      nextTimer = setTimeout(() => {
+        window.location.href = 'story-2-2.html';
+      }, NEXT_STORY_DELAY);
+    }, OUTRO_DELAY);
+  }
+
+  function showMessage() {
+    if (messageShown) return;
+    messageShown = true;
+    message.classList.add('visible');
+    scheduleOutro();                         // outro delay counts from message appearing
+  }
+
+  function applyState() {
+    const state = getState();
+    if (state === currentState) return;
+    currentState = state;
+
+    message.textContent = MESSAGES[state];
+
+    // Outro only belongs to the "alright" state
+    clearTimeout(outroTimer);
+    clearTimeout(nextTimer);                 // cancel the jump if the outro goes away
+    clearTimeout(fadeTimer);
+    fadeOverlay.classList.remove('show');
+    outro.classList.remove('visible');
+    shrimpMain.src = SHRIMP_ANIMATED;        // back to the animated shrimp
+
+    scheduleOutro();
+  }
+
+  /* ---------- Blinking edge indicators ---------- */
+  let blinkTimer = null;
+
+  function blinkEdges() {
+    roomControl.classList.remove('blink');
+    void roomControl.offsetWidth;            // restart the animation
+    roomControl.classList.add('blink');
+  }
+
+  function stopBlinking() {
+    clearInterval(blinkTimer);
+    roomControl.classList.remove('blink');
+  }
+
+  /* ---------- Initial setup ---------- */
+  applyRoomSize();
+  applyState();
+  // fade the intro in shortly after load
+  setTimeout(() => { if (!introGone) intro.classList.add('visible'); }, 100);
+  // messages fade in 2 s after the intro
+  setTimeout(showMessage, 100 + MESSAGE_DELAY);
+  // first blink after 10 s, then every 10 s until the outro
+  blinkTimer = setInterval(() => { if (!outroReached) blinkEdges(); }, BLINK_INTERVAL);
+
+  /* ---------- Room size slider ---------- */
+  roomSlider.addEventListener('input', () => {
+    intro.classList.remove('visible');     // intro disappears for good
+    introGone = true;
+    stopBlinking();                        // they found the slider
+    showMessage();                         // don't make the user wait if they already moved it
+    applyRoomSize();
+    applyState();
+  });
+
+  /* ---------- Hint pop-up ---------- */
+  const hintImg = document.getElementById('hint-img');
+  const hintPopup = document.getElementById('hint-popup');
+
+  hintImg.addEventListener('click', (e) => {
+    e.stopPropagation();
+    hintPopup.classList.toggle('show');
+  });
+
+  // Clicking anywhere else closes the pop-up
+  document.addEventListener('click', () => {
+    hintPopup.classList.remove('show');
+  });
+</script>
+
+</body>
+</html>
