@@ -209,6 +209,9 @@ h2 {
     max-width: none;
     height: 300px;
     pointer-events: none;
+    user-select: none;
+    -webkit-user-select: none; 
+    -webkit-user-drag: none;   
 }
 
 /* Phones in landscape: smaller shrimps so the text stays readable.
