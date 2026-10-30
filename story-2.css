@@ -143,9 +143,11 @@ h3 {
     height: min(30vh, 34vw);
     width: auto;
     display: none;
+    /*
     user-select: none;
     -webkit-user-select: none; 
     -webkit-user-drag: none;   
+    */
 }
 
 #shrimp-wrap[data-pose="base"]    #shrimp-close   { display: block; }

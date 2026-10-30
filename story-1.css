@@ -201,7 +201,9 @@ h2 {
 }
 
 /* Fixed size: images never scale with the window, so they just move
-   closer together (and overlap) as the window gets narrower */
+   closer together (and overlap) as the window gets narrower 
+   Testting 
+   */
 .shrimp img {
     display: block;
     flex: none;
